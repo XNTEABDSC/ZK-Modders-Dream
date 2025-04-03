@@ -1,0 +1,52 @@
+if Spring==nil then
+    Spring={}
+end
+if Spring.Utilities==nil then
+    Spring.Utilities={}
+end
+if not Spring.Utilities.wacky_utils then
+    local wacky_utils={}
+end
+if not Spring.Utilities.wacky_utils.better_gsub then
+    local wacky_utils=Spring.Utilities.wacky_utils
+    local function better_gsub_rec(str,pattern,mapper)
+        while true do
+            local l,r=string.find(str,pattern)
+            if not l then
+                break
+            else
+                local str1=string.sub(str,1,l-1)
+                --local str2=string.sub(str,l,r)
+                local str3=string.sub(str,r+1)
+                local str2transed=mapper(string.match(str,pattern))
+                str = str1 .. str2transed .. str3
+            end
+
+        end
+        return str
+    end
+    wacky_utils.better_gsub_rec=better_gsub_rec
+
+    local function better_gsub(str,pattern,mapper)
+        local done=""
+        local left=str
+        while true do
+            local l,r=string.find(left,pattern)
+            if not l then
+                break
+            else
+                local str1=string.sub(left,1,l-1)
+                --local str2=string.sub(str,l,r)
+                local str3=string.sub(left,r+1)
+                local str2transed=mapper({string.match(left,pattern)})
+                done=done .. str1 .. str2transed
+                left=str3
+                --str = str1 .. str2transed .. str3
+            end
+        end
+        return done .. left
+    end
+    wacky_utils.better_gsub=better_gsub
+    Spring.Utilities.wacky_utils=wacky_utils
+end
+    
