@@ -38,9 +38,11 @@ if not Spring.Utilities.wacky_utils.load_modoptions then
 
     --- load modOptions
     function wacky_utils.load_modoptions()
+        local json_mods_dir="gamedata/mods/"
+        local lua_mods_dir="gamedata/lua_mods/"
 
         local luamods={}
-        for i, filename in pairs(VFS.DirList("gamedata/lua_mods", "*.lua") or {}) do
+        for i, filename in pairs(VFS.DirList(lua_mods_dir, "*.lua") or {}) do
             --Spring.Utilities.CopyTable(VFS.Include(filename),luamods)
             local fileluamods=VFS.Include(filename)
             if fileluamods and type (fileluamods )=="table" then
@@ -67,7 +69,7 @@ if not Spring.Utilities.wacky_utils.load_modoptions then
 
         --do_lua_mods=do_lua_mods or false
         local modOptions = {}
-        local utils=wacky_utils
+        --local utils=wacky_utils
         local toload={}
         if (Spring.GetModOptions) then
             toload = Spring.GetModOptions()
@@ -100,8 +102,6 @@ if not Spring.Utilities.wacky_utils.load_modoptions then
             option_notes="\n---\n",
             mods=" "
         }
-        local json_mods_dir="gamedata/mods/"
-        local lua_mods_dir="gamedata/lua_mods/"
 
         local mod_count=0
         local last_order="load_modoptions_begin"
