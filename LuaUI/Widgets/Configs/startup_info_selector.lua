@@ -44,7 +44,8 @@ local chassisImages = {
 }
 --    moduleDefs, chassisDefs, utilities, LEVEL_BOUND, chassisDefByBaseDef, moduleDefNames, chassisDefNames
 local moduleDefs, chassisDefs, upgradeUtilities, LEVEL_BOUND , chassisDefByBaseDef, moduleDefNames, chassisDefNames = VFS.Include("LuaRules/Configs/dynamic_comm_defs.lua")
-
+---@cast chassisDefs table
+---@cast moduleDefNames table
 for key, value in pairs(chassisDefs) do
 	--Spring.Echo("DEBUG: " .. tostring(value))
 	chassisImages[value.name]=value.chassisImage or chassisImages[value.name]
@@ -91,6 +92,7 @@ local function GetCommSelectTemplate(num, data)
 		tooltip = "Select "..data.name..WriteTooltip(commProfileID),
 		image = chassisImages[data.chassis],
 		cmd = "customcomm:"..commProfileID,
+---@diagnostic disable-next-line: undefined-global
 		unitname = comm1Name,
 		commProfile = commProfileID,
 		trainer = string.find(commProfileID, "trainer") ~= nil,	-- FIXME should probably be in the def table

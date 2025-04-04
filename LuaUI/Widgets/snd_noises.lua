@@ -47,10 +47,13 @@ local toleranceTime = Spring.GetConfigInt('DoubleClickTime', 300) * 0.001 -- no 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+---@diagnostic disable-next-line: lowercase-global
 options_path = 'Settings/Audio'
+---@diagnostic disable-next-line: lowercase-global
 options_order = {
 'selectnoisevolume','ordernoisevolume','attacknoisevolume', 'commandSoundCooldown', 'selectSoundCooldown',
 }
+---@diagnostic disable-next-line: lowercase-global
 options = {
 	selectnoisevolume = {
 		name = 'Selection Volume',

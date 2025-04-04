@@ -69,7 +69,7 @@ if not Spring.Utilities.wacky_utils.may_lower_key_proxy then
 
     --- returns a table `o` that acts like `tb` e.g. `o.customParams`, but if `tb==lowerkey(tb)`, then `o` may do key:lower() when get and set <br>
     --- if checkKeys cant determines whether lower, this function will enumerate all keys to find whether any key is uppercase
-    ---@param checkKeys boolean|list<string>? keys to check whether `tb=lowerkey(tb)`
+    ---@param checkKeys boolean|string[]? keys to check whether `tb=lowerkey(tb)`
     ---@param deep boolean|nil if true, make proxy for table got
     may_lower_key_proxy = function(tb, checkKeys, deep)
         if deep==nil then

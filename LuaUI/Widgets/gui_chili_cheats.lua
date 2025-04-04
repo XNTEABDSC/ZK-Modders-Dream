@@ -1,3 +1,4 @@
+---@diagnostic disable: need-check-nil
 function widget:GetInfo()
 	return {
 		name      = "Cheat Sheet",
@@ -14,6 +15,7 @@ end
 VFS.Include("LuaRules/Configs/customcmds.h.lua")
 
 local setAiPosCommand = {
+---@diagnostic disable-next-line: undefined-global
 	id      = CMD_CHEAT_GIVE,
 	type    = CMDTYPE.ICON_MAP,
 	tooltip = 'Spawn units.',
@@ -801,6 +803,7 @@ end
 
 -- localisation
 
+---@diagnostic disable-next-line: lowercase-global
 function languageChanged()
 	if not initialized then
 		return
@@ -881,6 +884,7 @@ function widget:PlayerChanged(playerID)
 end
 
 function widget:CommandNotify(cmdID, cmdParams, cmdOptions)
+---@diagnostic disable-next-line: undefined-global
 	if cmdID ~= CMD_CHEAT_GIVE then
 		return
 	end
@@ -971,6 +975,7 @@ function widget:CommandsChanged()
 end
 
 function widget:Initialize()
+---@diagnostic disable-next-line: undefined-global
 	WG.InitializeTranslation (languageChanged, GetInfo().name)
 	myPlayerID = Spring.GetMyPlayerID()
 

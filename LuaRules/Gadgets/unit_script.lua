@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- Author: Tobi Vollebregt
 
 --[[
@@ -273,10 +274,10 @@ local function Destroy()
 end
 
 -- Pcalls thread.onerror, if present.
-local function RunOnError(thread)
+local function RunOnError(thread,err1)
 	local fun = thread.onerror
 	if fun then
-		local good, err = pcall(fun, err)
+		local good, err = pcall(fun, err1)
 		if (not good) then
 			Spring.Log(section, LOG.ERROR, "error in error handler: " .. err)
 		end
@@ -297,7 +298,7 @@ local function WakeUp(thread, ...)
 		Spring.Log(section, LOG.ERROR, err)
 		Spring.Echo("Error in WakeUp (co_resume failure)", thread.unitID)
 		Spring.Utilities.UnitEcho(thread.unitID, UnitDefs[Spring.GetUnitDefID(thread.unitID)].name .. " script error")
-		RunOnError(thread)
+		RunOnError(thread,err)
 	end
 end
 
@@ -378,6 +379,7 @@ function Spring.UnitScript.WaitForMove(piece, axis)
 end
 
 -- overwrites engine's WaitForTurn
+---@diagnostic disable-next-line: undefined-field
 local tau = math.tau
 function Spring.UnitScript.WaitForTurn(piece, axis)
 	local activeUnit = GetActiveUnit()
@@ -588,6 +590,7 @@ local function LoadChunk(filename)
 	-- pre-process constants (for example "math.rad(180)" -> "3.1415")
 	-- to avoid tons of needless global dereferences, function calls etc
 	text = text:gsub("math%.pi", math.pi)
+---@diagnostic disable-next-line: undefined-field
 	text = text:gsub("math%.tau", math.tau)
 	text = text:gsub("([xyz])_axis", { x = 1, y = 2, z = 3 })
 	text = text:gsub("SFX%.([_%u]+)", SFX)
@@ -843,6 +846,7 @@ function gadget:UnitCreated(unitID, unitDefID)
 	-- by localizing the necessary globals.
 
 	local pieces = Spring.GetUnitPieceMap(unitID)
+	---@cast pieces -nil
 	local env = {
 		unitID = unitID,
 		unitDefID = unitDefID,

@@ -1,4 +1,5 @@
 
+
 function gadget:GetInfo()
 	return {
 		name      = "Teleport Throw",
@@ -43,7 +44,7 @@ local unitIsNotBlocking = {}
 local cachedAttackCommandDesc = false
 
 local _, _, _, overkillPreventionDefault = include("LuaRules/Configs/overkill_prevention_defs.lua")
-
+---@cast overkillPreventionDefault table
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------
 -- Constants
@@ -149,6 +150,7 @@ local function SetUnitDrag(unitID, drag)
 	local ux, uy, uz = spGetUnitPosition(unitID)
 	local rx, ry, rz = Spring.GetUnitRotation(unitID)
 	local vx, vy, vz = Spring.GetUnitVelocity(unitID)
+---@diagnostic disable-next-line: param-type-mismatch
 	Spring.SetUnitPhysics(unitID, ux, uy, uz, vx, vy, vz, rx, ry, rz, drag, drag, drag)
 end
 
@@ -190,6 +192,7 @@ local function GetAffectedUnits(unitID, checkOverlobAllyTeam, unitX, unitZ)
 	end
 	
 	local nearUnits = Spring.GetUnitsInCylinder(unitX, unitZ, data.def.radius)
+	---@type false|table
 	local affectedUnits = false
 	if nearUnits then
 		for i = 1, #nearUnits do
@@ -247,6 +250,7 @@ function gadget:ProjectileCreated(proID, proOwnerID, weaponDefID)
 	if targetType == GROUND then
 		tx, ty, tz = targetPos[1], targetPos[2], targetPos[3]
 	else
+		---@cast targetPos -xyz
 		_, _, _, tx, ty, tz = spGetUnitPosition(targetPos, true)
 		local groundHeight = math.max(Spring.Utilities.GetGroundHeightMinusOffmap(tx, tz) or 0, 0)
 		ty = math.min(ty, groundHeight - MAX_ALTITUDE_AIM)
@@ -284,6 +288,7 @@ function gadget:ProjectileCreated(proID, proOwnerID, weaponDefID)
 	for i = 1, #affectedUnits do
 		local nearID = affectedUnits[i]
 		local _, _, _, speed = Spring.GetUnitVelocity(nearID)
+---@diagnostic disable-next-line: undefined-global
 		local recentMult = max(0, min(1, (((physicsData and physicsData.drag) or 0) - RECENT_MAX)/RECENT_INT_WIDTH))
 		local speedMult  = max(0, min(1, (SPEED_MAX - speed)/SPEED_INT_WIDTH))
 		local launchMult = speedMult
@@ -347,6 +352,7 @@ end
 local function CacheAttackCommandDesc(unitID)
 	local cmdTable = Spring.GetUnitCmdDescs(unitID)
 	for i = 1, #cmdTable do
+		---@cast cmdTable -nil
 		if cmdTable[i].id == CMD.ATTACK then
 			cachedAttackCommandDesc = cmdTable[i]
 			return
@@ -660,6 +666,7 @@ local function DrawThrowerWires(unitID, data, index, spec, myAllyTeam)
 	local los = spGetUnitLosState(unitID, myAllyTeam, true)
 	if spec or (los and (los and los%2 == 1)) then
 		local x, y, z = Spring.GetUnitViewPosition(unitID, true)
+		---@cast x -nil
 		local nearUnits = Spring.GetUnitsInCylinder(x, z, data.def.radius)
 		if nearUnits then
 			for i = 1, #nearUnits do

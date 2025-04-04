@@ -19,7 +19,8 @@
         "DEFS",
         "LOG",
         "FeatureDefNames",
-        "SendToUnsynced"
+        "SendToUnsynced",
+        "CMD"
         //,{ "name": "script", "include": "scripts/**.lua" }
     ],
     "runtime.version": "Lua 5.1",

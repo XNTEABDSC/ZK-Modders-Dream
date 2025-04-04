@@ -24,6 +24,9 @@ end
 
 include("LuaRules/Configs/constants.lua")
 
+---@diagnostic disable-next-line: undefined-global
+local TEAM_SLOWUPDATE_RATE=TEAM_SLOWUPDATE_RATE
+
 local windDefs = {
 	[ UnitDefNames['energywind'].id ] = true,
 }
@@ -188,7 +191,7 @@ local function SetupUnit(unitID)
 	local midy = (unitDefID and UnitDefs[unitDefID] and UnitDefs[unitDefID].model.midy) or 18
 
 	local x, y, z = spGetUnitPosition(unitID)
-	
+	---@cast x -nil
 	if Spring.GetGroundHeight(x, z) <= TIDAL_HEIGHT then
 		Spring.SetUnitRulesParam(unitID, "NotWindmill",1)
 		GG.Attributes.AddEffect(unitID, "self_upgrade", {healthAdd = TIDAL_HEALTH - WIND_HEALTH, static = true})
@@ -215,8 +218,8 @@ end
 GG.SetupWindmill = SetupUnit
 
 function gadget:Initialize()
-	local energyMult = Spring.GetModOptions().energymult
-	energyMult = energyMult and tonumber(energyMult) or 1
+	local energyMult = tonumber(Spring.GetModOptions().energymult) or 1
+	--energyMult = energyMult and tonumber(energyMult) or 1
 
 	windMin = 0 * energyMult
 	windMax = 2.5 * energyMult
@@ -230,13 +233,13 @@ function gadget:Initialize()
 
 	local minWindMult = 1
 	if (mapInfo and mapInfo.custom and tonumber(mapInfo.custom.zkminwindmult) ~= nil ) then
-		minWindMult = tonumber(mapInfo.custom.zkminwindmult)
+		minWindMult = tonumber(mapInfo.custom.zkminwindmult)--[[@as number]]
 	end
 	
 	local nominalGroundMin, nominalGroundMax = Spring.GetGroundExtremes()
 	local waterlevel = Spring.GetGameRulesParam("waterlevel") or 0
 	local groundMin, groundMax = math.max(nominalGroundMin - waterlevel,0), math.max(nominalGroundMax - waterlevel, 1)
-	local mexHeight = math.max(0, Spring.GetGameRulesParam("mex_min_height") or groundMin)
+	local mexHeight = math.max(0, Spring.GetGameRulesParam("mex_min_height")--[[@as number]] or groundMin)
 
 	GG.WindGroundMin = (groundMin + mexHeight)/2
 	local groundExtreme = groundMax - GG.WindGroundMin
@@ -273,6 +276,7 @@ function GG.MoveWindmill(unitID, unitDefID)
 		return
 	end
 	local x, y, z = spGetUnitPosition(unitID)
+	---@cast x -nil
 	local myHeight = Spring.GetGroundHeight(x, z)
 	
 	if Spring.GetUnitRulesParam(unitID, "isWind") == 1 then
