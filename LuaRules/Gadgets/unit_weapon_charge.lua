@@ -379,7 +379,7 @@ function gadget:GameFrame(f)
 end
 
 GG.GoodBurstSalvo={
-    SetUnitGoodBurstChargeData=SetUnitWeaponChargeData,
+    SetUnitWeaponChargeData=SetUnitWeaponChargeData,
     ChargeDatas=ChargeDatas,
     ChargeDataWDs=ChargeDataWDs,
     ChargeDataUDsHas=ChargeDataUDsHas
