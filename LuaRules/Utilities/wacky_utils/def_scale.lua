@@ -2,6 +2,7 @@ VFS.Include("LuaRules/Utilities/wacky_utils/include.lua")
 if not Spring.Utilities.wacky_utils.table_replace then
     local wacky_utils=Spring.Utilities.wacky_utils
     wacky_utils.wacky_utils_include("modify_all")
+    wacky_utils.wacky_utils_include("others")
     local modify_all=wacky_utils.modify_all
     local lowervalues=wacky_utils.lowervalues
         local udtryScales3=lowervalues({

@@ -1396,7 +1396,7 @@ return{
                 limit = 5,
                 cost = 200 * COST_MULT,
                 requireLevel = 1,
-                requireChassis = {"strike", "assault", "support", "chicken"},
+                requireChassis = {"strike", "assault", "support"},
                 slotType = "module",
                 applicationFunction = function (modules, sharedData)
                     sharedData.speedMod = (sharedData.speedMod or 0) + 3.5

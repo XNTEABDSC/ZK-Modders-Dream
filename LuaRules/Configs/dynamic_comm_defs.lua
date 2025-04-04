@@ -10,8 +10,8 @@ if VFS.FileExists(SKIN_FILE) then
 else
 	skinDefs = {}
 end
-
-local LEVEL_BOUND = math.floor(tonumber(Spring.GetModOptions().max_com_level or 0))
+---@type integer?
+local LEVEL_BOUND = math.floor(tonumber(Spring.GetModOptions().max_com_level or 0)--[[@as integer]])
 if LEVEL_BOUND <= 0 then
 	LEVEL_BOUND = nil -- unlimited
 else
@@ -26,7 +26,7 @@ if (Spring.GetModOptions) then
 	local modOptions = Spring.GetModOptions()
 	if modOptions then
 		if modOptions.hpmult and modOptions.hpmult ~= 1 then
-			HP_MULT = modOptions.hpmult
+			HP_MULT = tonumber(modOptions.hpmult)--[[@as number]]
 		end
 	end
 end
@@ -249,7 +249,15 @@ for i = 1, #moduleDefs do
 	local data = moduleDefs[i]
 	local allowedChassis = moduleDefs[i].requireChassis or chassisList
 	for j = 1, #allowedChassis do
-		moduleDefNames[allowedChassis[j]][data.name] = i
+		local chassisName=allowedChassis[j]
+		local mdn_=moduleDefNames[chassisName]
+		if not mdn_ then
+			Spring.Echo("Error: dynamic_comm_defs.lua: missing chassis " .. tostring(chassisName) .. " for module " .. tostring(data.name))
+			
+		else
+			mdn_[data.name] = i
+		end
+		
 	end
 end
 
