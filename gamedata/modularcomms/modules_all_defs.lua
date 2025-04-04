@@ -1,6 +1,4 @@
-if not Spring then
-    Spring={}
-end
+
 if not Spring.ModularCommAPI then
     Spring.ModularCommAPI={}
 end
