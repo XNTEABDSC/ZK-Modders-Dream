@@ -1,0 +1,1 @@
+UnitDefs["zenith"].weapondefs.gravity_neg.reloadtime=1.2
