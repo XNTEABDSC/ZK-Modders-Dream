@@ -13,7 +13,7 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-VFS.FileExists = VFS.FileExists or function(...) return false end	-- unitdef exporter compatibility
+VFS.FileExists = VFS.FileExists or function(file,mode) return false end	-- unitdef exporter compatibility
 
 --[[ This lets mutators add a bit of weapondefs_post processing without
      losing access to future gameside updates to weapondefs_post. ]]
