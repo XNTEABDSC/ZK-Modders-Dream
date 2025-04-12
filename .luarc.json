@@ -20,7 +20,10 @@
         "LOG",
         "FeatureDefNames",
         "SendToUnsynced",
-        "CMD"
+        "CMD",
+        "WeaponDefs",
+        "CMDTYPE",
+        "WeaponDefNames"
         //,{ "name": "script", "include": "scripts/**.lua" }
     ],
     "runtime.version": "Lua 5.1",
