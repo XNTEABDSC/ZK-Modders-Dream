@@ -44,13 +44,17 @@ for abspath,dirname,filenames in os.walk(thisAbsPath):
     if path.startswith("\\."):
         continue
     for filename in filenames:
-        if (not ignoreFileNames.get(filename,False)):
-            Pass=True
-            for i in ignoreFileEnds:
-                if filename.endswith(i):
-                    Pass=False
-                    break
-            if Pass:
-                zip.write(os.path.join(abspath,filename),os.path.join(path,filename))
+        if filename.startswith("."):
+            continue
+        if ignoreFileNames.get(filename,False):
+            continue
+        Pass=True
+        for i in ignoreFileEnds:
+            if filename.endswith(i):
+                Pass=False
+                break
+        if not Pass:
+            continue
+        zip.write(os.path.join(abspath,filename),os.path.join(path,filename))
 zip.close()
 
