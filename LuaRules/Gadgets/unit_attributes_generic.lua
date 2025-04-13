@@ -79,6 +79,7 @@ GG.att_ShieldRegenChange = {}
 GG.att_ShieldMaxMult = {}
 GG.att_StaticBuildRateMult = {}
 GG.attRaw_BuildSpeed = {} -- A build speed value rather than a multiplier
+GG.att_DamageMult = {}
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -256,7 +257,16 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 				range = wd.range,
 				sprayAngle = wd.sprayAngle or 0,
 				burst=wd.salvoSize or 1,
+				damages = GG.ATT_ENABLE_DAMAGE and {},
 			}
+			if GG.ATT_ENABLE_DAMAGE then
+				local did = 0
+				local data = state.weapon[i].damages
+				while wd.damages[did] do
+					data[did] = wd.damages[did]
+					did = did + 1
+				end
+			end
 			if wd.type == "LaserCannon" or wd.type == "Cannon" then
 				-- Barely works for missiles, and might break their burnblow and prediction
 				state.weapon[i].projectileSpeed = wd.projectilespeed
@@ -273,9 +283,13 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 		end
 		
 	end
+	if damageFactor ~= 1 and not GG.ATT_ENABLE_DAMAGE then
+		Spring.Utilities.UnitEcho(unitID, "damage attribute requires GG.ATT_ENABLE_DAMAGE")
+	end
 	
 
 	local reloadSpeedFactor, rangeFactor, projSpeedFactor, projectilesFactor,burstFactor,burstRateFactor,sprayAngleAdd
+	local damageFactor
 	if weaponMods[0] then
 		local def=weaponMods[0]
 		reloadSpeedFactor, rangeFactor, projSpeedFactor, projectilesFactor,burstFactor,burstRateFactor,sprayAngleAdd=
@@ -286,8 +300,11 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 		def.burstMult,
 		def.burstRateMult,
 		def.sprayAngleAdd
+
+		damageFactor=def.damageMult
 	else
 		reloadSpeedFactor, rangeFactor, projSpeedFactor, projectilesFactor,burstFactor,burstRateFactor,sprayAngleAdd=1,1,1,1,1,1,0
+		damageFactor=1
 	end
 
 	local state = origUnitWeapons[unitDefID]
@@ -297,9 +314,12 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 		local w = state.weapon[i]
 
 		local wmod=weaponMods and weaponMods[i]
-		local ReloadSpeedFactor = reloadSpeedFactor
+		local moddedReloadSpeedFactor = reloadSpeedFactor
+		if moddedReloadSpeedFactor<=0.000001 then
+			Spring.Echo("Warning: odd moddedReloadSpeedFactor: " .. tostring(moddedReloadSpeedFactor))
+		end
 		
-		local moddedBurstRate=w.burstRate and w.burstRate*burstRateFactor/ReloadSpeedFactor
+		local moddedBurstRate=w.burstRate and w.burstRate*burstRateFactor/moddedReloadSpeedFactor
 
 		local moddedRange = w.range*rangeFactor
 		local moddedProjectiles = w.projectiles*projectilesFactor
@@ -308,7 +328,7 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 		local moddedBurst=w.burst and w.burst*burstFactor
 		
 		if wmod then
-			ReloadSpeedFactor = ((wmod.reloadMult) or 1)*ReloadSpeedFactor
+			moddedReloadSpeedFactor = ((wmod.reloadMult) or 1)*moddedReloadSpeedFactor
 			
 			moddedRange = moddedRange*((wmod.rangeMult) or 1)
 			
@@ -316,7 +336,7 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 
 			moddedProjectiles = moddedProjectiles*((wmod.projectilesMult) or 1)
 			moddedBurst=moddedBurst and moddedBurst * ((wmod.burstMult) or 1)
-			moddedBurstRate=moddedBurstRate and moddedBurstRate * ( (wmod.burstRateMult) or 1 )
+			moddedBurstRate=moddedBurstRate and moddedBurstRate * ( (wmod.burstRateMult) or 1 ) or false
 		end
 		moddedSprayAngle = math.max(moddedSprayAngle, minSpray)
 		local reloadState = spGetUnitWeaponState(unitID, i , 'reloadState')
@@ -342,7 +362,7 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 				unitReloadPaused[unitID] = nil
 				spSetUnitRulesParam(unitID, "reloadPaused", 0, INLOS_ACCESS)
 			end
-			local newReload = w.reload/ReloadSpeedFactor
+			local newReload = w.reload/moddedReloadSpeedFactor
 			local nextReload = gameFrame+(reloadState-gameFrame)*newReload/reloadTime
 			-- Add HALF_FRAME to round reloadTime to the closest discrete frame (multiple of 1/30), since the the engine rounds DOWN
 			spSetUnitWeaponState(unitID, i, {reloadTime = newReload + HALF_FRAME, reloadState = nextReload + 0.5})
@@ -370,6 +390,26 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 
 		if maxRangeModified < moddedRange then
 			maxRangeModified = moddedRange
+		end
+
+		if GG.ATT_ENABLE_DAMAGE then
+
+			local did = 0
+
+			local data = state.weapon[i].damages
+
+			local toSet = {}
+
+			while data[did] do
+
+				toSet[did] = data[did] * damageFactor
+
+				did = did + 1
+
+			end
+
+			spSetUnitWeaponDamages(unitID, i, toSet)
+
 		end
 	end
 	
@@ -521,10 +561,10 @@ local currentProjectiles = {}
 local currentBurst = {}
 local currentBurstRate = {}
 local currentSprayAngleAdd={}
+local currentDamage = {}
 local currentMinSpray = {}
 local currentShieldDisabled = {}
 local currentAbilityDisabled = {}
-
 local currentSense = {}
 local currentSetRadar = {}
 local currentSetSonar = {}
@@ -549,6 +589,10 @@ local function CleanupAttributeDataForUnit(unitID)
 	currentBuildpower[unitID] = nil
 	currentCost[unitID] = nil
 	currentProjectiles[unitID] = nil
+	currentDamage[unitID] = nil
+	currentBurst[unitID] = nil
+	currentBurstRate[unitID] = nil
+	currentSprayAngleAdd[unitID] = nil
 	currentMinSpray[unitID] = nil
 	currentShieldDisabled[unitID] = nil
 	currentAbilityDisabled[unitID] = nil
@@ -572,6 +616,9 @@ local function CleanupAttributeDataForUnit(unitID)
 	GG.att_ShieldRegenChange[unitID] = nil
 	GG.att_StaticBuildRateMult[unitID] = nil
 	GG.attRaw_BuildSpeed[unitID] = nil
+	GG.att_LastChangeFrame[unitID] = nil
+	GG.att_DamageMult[unitID] = nil
+	
 end
 
 local function UpdateUnitAttributes(unitID, attTypeMap)
