@@ -21,6 +21,7 @@ if not Spring.Utilities.wacky_utils.lowerkeys then
         return tn
     end
     wacky_utils.lowerkeys=lowerkeys
+    ---make all string values in a list lowercase
     local function lowervalues(t)
         for key, value in pairs(t) do
             if type(value)=="string" then

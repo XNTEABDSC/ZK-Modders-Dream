@@ -3,35 +3,37 @@ if not Spring.Utilities.wacky_utils.table_replace then
     local wacky_utils=Spring.Utilities.wacky_utils
     wacky_utils.wacky_utils_include("modify_all")
     wacky_utils.wacky_utils_include("others")
+    wacky_utils.wacky_utils_include("dimensions")
     local modify_all=wacky_utils.modify_all
     local lowervalues=wacky_utils.lowervalues
-        local udtryScales3=lowervalues({
+    local list_to_set=wacky_utils.list_to_set
+        local udtryScales3=list_to_set(lowervalues({
             --"collisionVolumeOffsets",
             --"collisionVolumeScales",
             "selectionVolumeOffsets",
             "selectionVolumeScales"
-        })
-        local udtryScales1=lowervalues({
+        }))
+        local udtryScales1=list_to_set(lowervalues({
             "trackOffset",
             "trackWidth",
             "trackStrength",
             "trackStretch",
             "buildingGroundDecalSizeX","buildingGroundDecalSizeY","buildingGroundDecalDecaySpeed"
-        })
-        local udcpdefScales1=lowervalues({
+        }))
+        local udcpdefScales1=list_to_set(lowervalues({
             "model_rescale"
-        })
-        local udtryScales1round=lowervalues({
+        }))
+        local udtryScales1round=list_to_set(lowervalues({
             -- special
             --"footprintX",
             --"footprintZ",
-        })
-        local udcptryScales3=lowervalues({
+        }))
+        local udcptryScales3=list_to_set(lowervalues({
             --"aimposoffset","midposoffset"
-        })
-        local udcptryScales1=lowervalues({
+        }))
+        local udcptryScales1=list_to_set(lowervalues({
             --"modelradius","modelheight"
-        })
+        }))
         local GetDimensions=wacky_utils.GetDimensions
         local ToDimensions=wacky_utils.ToDimensions
         local function scale3(scale)
@@ -124,13 +126,14 @@ if not Spring.Utilities.wacky_utils.table_replace then
             modify_all(ud,udtryScales3,scale3(scale))
             modify_all(ud,udtryScales1,scale1(scale))
             modify_all(ud,udtryScales1round,scale1round(scale))
-            if ud.customparams then
-                local udcp=ud.customparams
-                modify_all(udcp,udcptryScales3,scale3(scale))
-                modify_all(udcp,udcptryScales1,scale1(scale))
-                ud.customparams.dynamic_colvol=true
-                modify_all(udcp,udcpdefScales1,defscale1(scale))
-            end
+
+            ud.customparams=ud.customparams or {}
+            local udcp=ud.customparams
+            modify_all(udcp,udcptryScales3,scale3(scale))
+            modify_all(udcp,udcptryScales1,scale1(scale))
+            ud.customparams.dynamic_colvol=true
+            modify_all(udcp,udcpdefScales1,defscale1(scale))
+
             if ud.movementclass then
                 local b,s,p=wacky_utils.MoveDef_CanGen(ud.movementclass)
                 if b then
