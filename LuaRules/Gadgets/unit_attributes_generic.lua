@@ -283,9 +283,6 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 		end
 		
 	end
-	if damageFactor ~= 1 and not GG.ATT_ENABLE_DAMAGE then
-		Spring.Utilities.UnitEcho(unitID, "damage attribute requires GG.ATT_ENABLE_DAMAGE")
-	end
 	
 
 	local reloadSpeedFactor, rangeFactor, projSpeedFactor, projectilesFactor,burstFactor,burstRateFactor,sprayAngleAdd
@@ -302,6 +299,9 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 		def.sprayAngleAdd
 
 		damageFactor=def.damageMult
+		if damageFactor ~= 1 and not GG.ATT_ENABLE_DAMAGE then
+			Spring.Utilities.UnitEcho(unitID, "damage attribute requires GG.ATT_ENABLE_DAMAGE")
+		end
 	else
 		reloadSpeedFactor, rangeFactor, projSpeedFactor, projectilesFactor,burstFactor,burstRateFactor,sprayAngleAdd=1,1,1,1,1,1,0
 		damageFactor=1
@@ -315,7 +315,7 @@ local function UpdateWeapons(unitID, unitDefID, weaponMods, minSpray, gameFrame)
 
 		local wmod=weaponMods and weaponMods[i]
 		local moddedReloadSpeedFactor = reloadSpeedFactor
-		if moddedReloadSpeedFactor<=0.000001 then
+		if moddedReloadSpeedFactor<=0.00001 then
 			Spring.Echo("Warning: odd moddedReloadSpeedFactor: " .. tostring(moddedReloadSpeedFactor))
 		end
 		

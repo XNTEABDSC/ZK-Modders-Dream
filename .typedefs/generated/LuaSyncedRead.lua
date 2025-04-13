@@ -622,7 +622,7 @@ function Spring.GetUnitPosErrorParams(unitID, allyTeamID) end
 function Spring.GetUnitTooltip(unitID) end
 
 ---@param unitID UnitId
----@return number?
+---@return UnitDefId?
 function Spring.GetUnitDefID(unitID) end
 
 ---@param unitID UnitId
