@@ -1123,7 +1123,7 @@ function Spring.GetUnitCurrentCommand(unitID, cmdIndex) end
 ---
 ---@param unitID UnitId
 ---@param count integer Number of commands to return, `-1` returns all commands, `0` returns command count.
----@return Command[] commands
+---@return list<Command> commands
 function Spring.GetUnitCommands(unitID, count) end
 
 ---Get the count of commands for a unit.

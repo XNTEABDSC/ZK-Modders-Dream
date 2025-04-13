@@ -1,13 +1,14 @@
 return {
-	name='_ZK Modders Dream dev',
+	name='_ZK_Modders_Dream_dev',
 	description='later',
-	version='v0.0.0.2',
+	version='v0.0.0.6',
 	shortname='ZKMD',
-	mutator='1',
+	mutator='zk but more api',
 	game='Zero-K',
 	shortGame='ZK',
 	modtype=1,
 	depend = {
-		[[rapid://zk:stable]],
+		-- [[rapid://zk:stable]],
+		[[Zero-K v1.13.4.1]]
 	},
 }
