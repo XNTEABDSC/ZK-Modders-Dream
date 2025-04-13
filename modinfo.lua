@@ -1,7 +1,7 @@
 return {
 	name='_ZK Modders Dream dev',
 	description='later',
-	version='v0.0.0.1',
+	version='v0.0.0.2',
 	shortname='ZKMD',
 	mutator='1',
 	game='Zero-K',

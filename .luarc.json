@@ -33,6 +33,10 @@
     "runtime.special": {
         "include":"require",
         "VFS.Include":"require"
-    }
+    },
+    "Lua.workspace.library": [
+        "../zk-stable"
+    ],
+    "Lua.workspace.checkThirdParty": false
     
 }
