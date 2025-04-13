@@ -63,6 +63,7 @@ end
 
 local function RandomPointInCircle(cx, cz, radius)
 	local r = radius*math.sqrt(math.random())
+---@diagnostic disable-next-line: unused-function
 	local angle = math.random() * math.tau
 	local rx, rz = cx + r*math.cos(angle), cz + r*math.sin(angle)
 	return rx, rz
@@ -91,6 +92,8 @@ local function FindMobileUnitLocation(uID, udid, tx, tz, radius)
 	while tries <= teleMaxTries do
 		dx, dz = RandomPointInCircle(tx, tz, radius)
 		dx, dz = Spring.Utilities.ClampPosition(dx, dz)
+		
+		---@diagnostic disable
 		if spTestMoveOrder(udid, dx, 0, dz, 0, 0, 0, true, true, tries > teleMaxTries*0.5) then
 			break
 		end
@@ -191,7 +194,8 @@ local function FireTeleporter()
 		if cmdParam3 then
 			tx, ty, tz = cmdParam1, cmdParam2, cmdParam3
 		elseif not cmdParam2 then
-			targetID = cmdParam1
+			local targetID = cmdParam1
+			---@cast targetID UnitId
 			tx, ty, tz = Spring.GetUnitPosition(targetID)
 		end
 	end

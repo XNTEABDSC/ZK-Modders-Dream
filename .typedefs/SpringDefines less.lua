@@ -53,10 +53,10 @@ Game.gameSpeed=30
 Game.mapSizeX=512
 Game.mapSizeZ=512
 
+---@alias WeaponDefName string
 
 ---@class WeaponDefId:integer
----@class WeaponDefName:string
----@class WeaponDef:any --:{id:WeaponDefId,[any]:any}
+---@class WeaponDef --:{id:WeaponDefId,[any]:any}
 ---@field id WeaponDefId
 ---@field name WeaponDefName
 ---@field damageAreaOfEffect number
@@ -75,6 +75,10 @@ Game.mapSizeZ=512
 ---@field craterMult number
 ---@field myGravity number
 ---@field customParams {[string]:string|number|nil}
+---@field accuracy number
+---@field turret boolean
+---@field explosionSpeed number
+
 
 ---@type table<WeaponDefId,WeaponDef>
 WeaponDefs={}

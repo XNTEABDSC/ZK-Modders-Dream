@@ -198,6 +198,9 @@ local function IsDisabled()
 		return true
 	end
 	local x, _, z = Spring.GetUnitPosition(unitID)
+	if not x then
+		return true
+	end
 	local y = Spring.GetGroundHeight(x, z)
 	if y < -95 then
 		return true
@@ -229,6 +232,7 @@ local function TransformMeteor(weaponDefID, proID, meteorTeamID, meteorOwnerID, 
 		     counting as a teamkill etc). ]]
 		team = meteorTeamID,
 	})
+	---@cast newProID ProjectileId
 	if x then
 		Spring.SetProjectileTarget(newProID, x, y, z)
 	end
@@ -283,6 +287,7 @@ local function SpawnMeteor()
 		ttl = 18000, -- 18000 = 10 minutes
 		team = zenithTeamID,
 	})
+	---@cast proID ProjectileId
 	Spring.SetProjectileTarget(proID, ux + hoverPos[1], uy + HOVER_HEIGHT, uz + hoverPos[2])
 	
 	-- Drop meteor if there are too many. It is more fun this way.
@@ -363,6 +368,7 @@ local function SpawnProjectileThread()
 			Sleep(100)
 		end
 		lastSpawnProjectileTime = Spring.GetGameFrame()
+		local stunned_or_inbuild = Spring.GetUnitIsStunned(unitID)
 		local reloadMult = (stunned_or_inbuild and 0) or (spGetUnitRulesParam(unitID, "lowpower") == 1 and 0) or (GG.att_ReloadChange[unitID] or 1)
 
 		--EmitSfx(flare, 2049)
@@ -494,6 +500,7 @@ function LaunchOne(x,z)
 	-- projectiles.
 	do
 		local proID = aim
+		---@cast proID ProjectileId
 		-- Check that the projectile ID is still valid
 		if spGetProjectileDefID(proID) == aimWeaponDefID then
 			-- Projectile is valid, launch!

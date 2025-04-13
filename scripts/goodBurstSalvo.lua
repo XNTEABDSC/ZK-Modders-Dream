@@ -62,7 +62,7 @@ if not GG.goodBurstSalvo then
             active=false
         end
         function o.WaitUntilReady()
-            while count<=0 do
+            while charge<=1 do
                 Sleep(100)
             end
         end

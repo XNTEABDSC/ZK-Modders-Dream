@@ -23,22 +23,47 @@
         "CMD",
         "WeaponDefs",
         "CMDTYPE",
-        "WeaponDefNames"
+        "WeaponDefNames",
+        "script",
+        "StartThread",
+        "unitID",
+        "y_axis",
+        "x_axis",
+        "z_axis",
+        "Spin",
+        "StopSpin",
+        "SetSignalMask",
+        "Signal",
+        "EmitSfx",
+        "unitID",
+        "Turn",
+        "WaitForTurn",
+        "Sleep",
+        "UnitDef",
+        "Hide",
+        "Move",
+        "Explode",
+        "WaitForMove",
+        "Show",
+        "unitDefID",
+        "GetUnitValue",
+        "hat",
+        "SetUnitValue",
+        "cross"
         //,{ "name": "script", "include": "scripts/**.lua" }
     ],
     "runtime.version": "Lua 5.1",
     "diagnostics.disable": [
-        "duplicate-set-field"
+        "duplicate-set-field",
+        "lowercase-global"
     ],
     "runtime.special": {
         "include":"require",
         "VFS.Include":"require"
     },
     "Lua.workspace.library": [
-        "../zk-stable"
+        ".."
     ],
-    "Lua.workspace.checkThirdParty": false,
-    "Lua.workspace.ignoreDir": [
-        "scripts/**"
-    ]
+    "Lua.workspace.checkThirdParty": false
+    
 }

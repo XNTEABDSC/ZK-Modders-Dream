@@ -446,7 +446,7 @@ function Spring.SetUnitLosState(unitID, allyTeam, los) end
 ---
 ---@param unitID UnitId
 ---@param cloak boolean|number
----@param cloakArg boolean|number
+---@param cloakArg boolean|number|nil
 ---@return nil
 function Spring.SetUnitCloak(unitID, cloak, cloakArg) end
 
@@ -1351,10 +1351,9 @@ function Spring.SetHeightMap(x, z, height, terraform) end
 ---```
 ---
 ---@param luaFunction function
----@param arg number
 ---@param ... number
 ---@return integer? absTotalHeightMapAmountChanged
-function Spring.SetHeightMapFunc(luaFunction, arg, ...) end
+function Spring.SetHeightMapFunc(luaFunction, ...) end
 
 ---Height Map/Smooth Mesh
 ---
@@ -1544,7 +1543,7 @@ function Spring.SetUnitLoadingTransport(passengerID, transportID) end
 
 ---@param weaponDefID integer
 ---@param projectileParams ProjectileParams
----@return integer? projectileID
+---@return ProjectileId? projectileID
 function Spring.SpawnProjectile(weaponDefID, projectileParams) end
 
 ---Silently removes projectiles (no explosion).

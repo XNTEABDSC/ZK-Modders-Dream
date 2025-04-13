@@ -732,7 +732,7 @@ function Spring.GetUnitMass(unitID) end
 ---@param unitID UnitId
 ---@param midPos boolean? (Default: false) return midpoint as well
 ---@param aimPos boolean? (Default: false) return aimpoint as well
----@return number? basePointX
+---@return number basePointX
 ---@return number basePointY
 ---@return number basePointZ
 ---@return number? midPointX
@@ -779,6 +779,7 @@ function Spring.GetUnitHeading(unitID, convertToRadians) end
 function Spring.GetUnitVelocity(unitID) end
 
 ---@param unitID UnitId
+---@return Facing
 function Spring.GetUnitBuildFacing(unitID) end
 
 ---Checks whether a unit is currently building another (NOT for checking if it's a structure)
@@ -923,6 +924,40 @@ function Spring.GetUnitMaxRange(unitID) end
 ---@return number stateValue
 function Spring.GetUnitWeaponState(unitID, weaponNum, stateName) end
 
+
+---Unit weapon state
+---
+---@section unit_weapon_state
+
+---Check the state of a unit's weapon
+---
+---Available states to poll:
+---"reloadFrame" (frame on which the weapon will be ready to fire),
+---"reloadSpeed" (reload time in seconds),
+---"range" (in elmos),
+---"autoTargetRangeBoost" (predictive aiming range buffer, in elmos),
+---"projectileSpeed" (in elmos/frame),
+---"reloadTimeXP" (reload time after XP bonus, in seconds),
+---"reaimTime" (frames between AimWeapon calls),
+---"burst" (shots in a burst),
+---"burstRate" (delay between shots in a burst, in seconds),
+---"projectiles" (projectiles per shot),
+---"salvoLeft" (shots remaining in ongoing burst),
+---"nextSalvo" (simframe of the next shot in an ongoing burst),
+---"accuracy" (INaccuracy after XP bonus),
+---"sprayAngle" (spray angle after XP bonus),
+---"targetMoveError" (extra inaccuracy against moving targets, after XP bonus)
+---"avoidFlags" (bitmask for targeting avoidance),
+---"collisionFlags" (bitmask for collisions).
+---
+---The state "salvoError" is an exception and returns a table: {x, y, z},
+---which represents the inaccuracy error of the ongoing burst.
+---
+---@param unitID UnitId
+---@param weaponNum number
+---@return list<number> damageTable
+function Spring.GetUnitWeaponState(unitID, weaponNum) end
+
 ---@param unitID UnitId
 function Spring.GetUnitWeaponDamages(unitID) end
 
@@ -1039,6 +1074,7 @@ function Spring.GetCEGID() end
 function Spring.GetUnitBlocking(unitID) end
 
 ---@class MoveTypeData
+---@field name string?
 ---@field maxSpeed number?
 ---@field maxWantedSpeed number?
 ---@field maneuverLeash number?
@@ -1070,6 +1106,7 @@ function Spring.GetUnitBlocking(unitID) end
 ---@field currentBank   number?
 ---@field currentPitch   number?
 ---@field maxDrift    number?
+---@field aircraftState string?
 
 ---@param unitID UnitId
 ---@return MoveTypeData
@@ -1259,30 +1296,30 @@ function Spring.GetFeaturePieceCollisionVolumeData(featureID) end
 ---
 ---@section projectile_state
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number? posX
 ---@return number posY
 ---@return number posZ
 function Spring.GetProjectilePosition(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number? dirX
 ---@return number dirY
 ---@return number dirZ
 function Spring.GetProjectileDirection(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number? velX
 ---@return number velY
 ---@return number velZ
 ---@return number velW
 function Spring.GetProjectileVelocity(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number?
 function Spring.GetProjectileGravity(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number? explosionFlags encoded bitwise with SHATTER = 1, EXPLODE = 2, EXPLODE_ON_HIT = 2, FALL = 4, SMOKE = 8, FIRE = 16, NONE = 32, NO_CEG_TRAIL = 64, NO_HEATCLOUD = 128
 ---@return number spinAngle
 ---@return number spinSpeed
@@ -1291,7 +1328,7 @@ function Spring.GetProjectileGravity(projectileID) end
 ---@return number spinVectorZ
 function Spring.GetPieceProjectileParams(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number? targetTypeInt where
 ---string.byte('g') := GROUND
 ---string.byte('u') := UNIT
@@ -1300,27 +1337,27 @@ function Spring.GetPieceProjectileParams(projectileID) end
 ---@return number|float3 target targetID or targetPos when targetTypeInt == string.byte('g')
 function Spring.GetProjectileTarget(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return nil|boolean
 function Spring.GetProjectileIsIntercepted(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number?
 function Spring.GetProjectileTimeToLive(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number?
 function Spring.GetProjectileOwnerID(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number?
 function Spring.GetProjectileTeamID(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return number?
 function Spring.GetProjectileAllyTeamID(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return nil|boolean weapon
 ---@return boolean piece
 function Spring.GetProjectileType(projectileID) end
@@ -1328,11 +1365,11 @@ function Spring.GetProjectileType(projectileID) end
 ---
 ---Using this to get a weaponDefID is HIGHLY preferred to indexing WeaponDefNames via GetProjectileName
 ---
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@return WeaponDefId?
 function Spring.GetProjectileDefID(projectileID) end
 
----@param projectileID integer
+---@param projectileID ProjectileId
 ---@param tag string one of:
 ---"paralyzeDamageTime"
 ---"impulseFactor"
