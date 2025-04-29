@@ -53,6 +53,9 @@ Game.gameSpeed=30
 Game.mapSizeX=512
 Game.mapSizeZ=512
 
+---@type {[UnitDefId]:table}
+UnitDefs={}
+
 ---@alias WeaponDefName string
 
 ---@class WeaponDefId:integer

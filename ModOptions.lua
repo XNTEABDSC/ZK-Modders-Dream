@@ -210,14 +210,6 @@ local options = {
     },
   },
   {
-    key         = "custon_units",
-    name        = "Custom Units",
-    desc        = "Turn on Custom Units system. You need lua_mods/custom_units to turn on custom unit builder",
-    type        = "bool",
-    section     = "experimental",
-    def         = false,
-  },
-  {
     key         = "allyreclaim",
     name        = "Reclaimable allies",
     desc        = "Allows reclaiming allied units and structures",
@@ -1084,6 +1076,21 @@ local options = {
 	step   = 1,
   },
 }
+
+
+local moFiles=VFS.DirList("ModOptions", "*.lua") or {}
+for i = 1, #moFiles do
+    local modefs = VFS.Include(moFiles[i])
+    if modefs==nil then
+      Spring.Echo("Error: file " .. tostring(moFiles[i]) .. "returns nil, which is expected to be ModOption table")
+
+    else
+      for k,v in pairs(modefs) do
+        options[#options+1]=v
+      end
+
+    end
+end
 
 for i = 1, 9 do
 	options[#options + 1] =  {

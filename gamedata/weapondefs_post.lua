@@ -269,9 +269,10 @@ for wdname, weaponDef in pairs(WeaponDefs) do
 		(weaponDef.weapontype == "Cannon") or
 		(weaponDef.weapontype == "AircraftBomb")
 
+	--[=[
 	if wdname:find("projectile_targeter") then
 		Spring.Echo("DEBUG: wd_post: processing " .. wdname .. "s' gravity. mygravity: " .. tostring( weaponDef.mygravity) .. " type: " .. tostring(weaponDef.weapontype) .. " pass: " .. tostring(supportsMyGravity and (not weaponDef.mygravity)))
-	end
+	end]=]
 
 	if supportsMyGravity and (not weaponDef.mygravity) then -- setting myGravity = 0.0 will use map gravity anyway
 		weaponDef.mygravity = defaultMyGravity

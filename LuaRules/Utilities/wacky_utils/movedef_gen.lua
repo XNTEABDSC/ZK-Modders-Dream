@@ -46,7 +46,7 @@ if not Spring.Utilities.wacky_utils.table_replace then
                 crushstrength = crushstrengthGen(size),
             }
         end,
-        BOAT5 = function(size)
+        BOAT = function(size)
             return {
                 footprintx = size,
                 footprintz = size,
