@@ -226,7 +226,7 @@ local function UpdateUnitCollisionData(unitID, unitDefID, scales, force)
 		}
 	end]=]
 
-	local cache = origColvolCache[unitDefID]
+	local cache = GetOrigColvolData(unitID, unitDefID)
 	local scaleX, scaleY, scaleZ, offsetX, offsetY, offsetZ,
 			volumeType, testType, primaryAxis = cache[1], cache[2], cache[3], cache[4], cache[5], cache[6], cache[7], cache[8], cache[9]
 	
@@ -310,7 +310,7 @@ local function OverrideMidAndAimPos(unitID, mid, aim)
 	
 
 	local myscale=unitDefScale[spGetUnitDefID(unitID)] or 1
-	
+
 	spSetUnitMidAndAimPos(unitID, sx*mid[1]*myscale, sy*mid[2]*myscale, sz*mid[3]*myscale, sx*aim[1]*myscale, sy*aim[2]*myscale, sz*aim[3]*myscale, true)
 end
 

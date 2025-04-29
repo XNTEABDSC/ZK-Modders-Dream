@@ -2,9 +2,10 @@ import py7zr
 import os
 import re
 import lupa
+from typing import Any
 from lupa import LuaRuntime
 
-lua=LuaRuntime(unpack_returned_tuples=True)
+lua=LuaRuntime()
 
 
 def is_lua_table(obj):
@@ -16,6 +17,7 @@ def valueToLuaString_Key(v):
         return "["+str(v)+"]"
     if vType==str:
         return v
+    raise
 
 def valueToLuaStrings(v):
     vType=type(v)
@@ -38,6 +40,7 @@ def valueToLuaStrings(v):
             #resStr.append( valueToLuaString_Key(key) +"="+valueToLuaStrings(value)+",\n")
         resStr.append('}')
         return resStr
+    raise
 
 thisAbsPath=os.path.abspath(".")
 thisDirName=os.path.split(thisAbsPath)[1]
@@ -47,7 +50,7 @@ thisModVersion=""
 thisModFileName="ZK_Modders_Dream"
 dependReplace={}
 
-modinfo=lua.execute(open("modinfo.lua","r").read())
+modinfo:Any=lua.execute(open("modinfo.lua","r").read())
 
 thisModVersion=modinfo.version
 modinfo.name=thisModName

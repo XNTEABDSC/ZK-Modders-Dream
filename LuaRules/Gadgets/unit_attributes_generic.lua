@@ -80,6 +80,7 @@ GG.att_ShieldMaxMult = {}
 GG.att_StaticBuildRateMult = {}
 GG.attRaw_BuildSpeed = {} -- A build speed value rather than a multiplier
 GG.att_DamageMult = {}
+GG.att_LastChangeFrame = {}
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -632,6 +633,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 	end
 	
 	local frame = spGetGameFrame()
+	GG.att_LastChangeFrame[unitID] = frame
 	
 	local healthAdd = 0
 	local healthMult = 1
@@ -660,6 +662,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 			burstMult=1,
 			burstRateMult=1,
 			sprayAngleAdd=0,
+			damageMult=1,
 		}
 	}
 	local setRadar = false
@@ -725,6 +728,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 					burstMult=1,
 					burstRateMult=1,
 					sprayAngleAdd=0,
+					damageMult=1,
 				}
 				wepData.reloadMult = wepData.reloadMult*(data.reload and data.reload[unitID] or 1)
 				wepData.rangeMult = wepData.rangeMult*(data.range and data.range[unitID] or 1)
@@ -733,6 +737,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 				wepData.burstMult=wepData.burstMult*(data.burst and data.burst[unitID] or 1)
 				wepData.burstRateMult=wepData.burstRateMult*(data.burstRate and data.burstRate[unitID] or 1)
 				wepData.sprayAngleAdd=wepData.sprayAngleAdd+(data.sprayAngle and data.sprayAngle[unitID] or 0)
+				wepData.damageMult=wepData.damageMult*(data.damage and data.damage[unitID] or 1)
 				weaponSpecificMods[weaponNum]=wepData
 			end
 		end
@@ -747,6 +752,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 	local burstMult= weaponSpecificModsDef.burstMult
 	local burstRateMult= weaponSpecificModsDef.burstRateMult
 	local sprayAngleAdd=weaponSpecificModsDef.sprayAngleAdd
+	local damageMult=weaponSpecificModsDef.damageMult
 	
 	spSetUnitRulesParam(unitID, "totalReloadSpeedChange", reloadMult, INLOS_ACCESS)
 	spSetUnitRulesParam(unitID, "totalEconomyChange", econMult, INLOS_ACCESS)
@@ -754,6 +760,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 	spSetUnitRulesParam(unitID, "totalMoveSpeedChange", moveMult, INLOS_ACCESS)
 	spSetUnitRulesParam(unitID, "costMult", costMult, INLOS_ACCESS)
 	spSetUnitRulesParam(unitID, "projectilesMult", projectilesMult, INLOS_ACCESS)
+	spSetUnitRulesParam(unitID, "damageMult", damageMult, INLOS_ACCESS)
 	spSetUnitRulesParam(unitID, "rangeMult", rangeMult, INLOS_ACCESS)
 	spSetUnitRulesParam(unitID, "jumpRangeMult", jumpRangeMult, INLOS_ACCESS)
 	
@@ -780,6 +787,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 	GG.att_StaticBuildRateMult[unitID] = staticBuildpowerMult
 	GG.att_ProjSpeed[unitID] = projSpeedMult -- Ignores weapon mods
 	GG.att_ProjMult[unitID] = projectilesMult
+	GG.att_DamageMult[unitID] = damageMult
 	
 	
 	unitSlowed[unitID] = moveMult < 1
@@ -795,6 +803,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 		or (currentBurst[unitID] or 1) ~= burstMult
 		or (currentBurstRate[unitID] or 1) ~= burstRateMult
 		or (currentSprayAngleAdd[unitID] or 0) ~= currentSprayAngleAdd
+		or (currentDamage[unitID] or 1) ~= damageMult
 	
 	local moveChanges = (currentMove[unitID] or 1) ~= moveMult
 		or (currentTurn[unitID] or 1) ~= turnMult
@@ -833,6 +842,7 @@ local function UpdateUnitAttributes(unitID, attTypeMap)
 		currentBurst[unitID]=burstMult
 		currentBurstRate[unitID]=burstRateMult
 		currentSprayAngleAdd[unitID]=sprayAngleAdd
+		currentDamage[unitID] = damageMult
 	end
 	
 	if buildMult ~= currentBuildpower[unitID] then
@@ -907,6 +917,7 @@ local attributeNames = {
 	"setJammer",
 	"setSight",
 	"projectiles",
+	"damage",
 	"burst",
 	"burstRate",
 	"weaponNum",
