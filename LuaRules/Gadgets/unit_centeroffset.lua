@@ -51,6 +51,17 @@ for i = 1, #UnitDefs do
 	end
 end
 
+
+---@type {[UnitDefId]:number}
+local unitDefScale={}
+
+for udid, ud in pairs(UnitDefs) do
+	local def_scale=ud.customParams.def_scale
+	if def_scale then
+		unitDefScale[udid]=tonumber(def_scale)
+	end
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization of aim and midpos
@@ -132,8 +143,9 @@ local function GetOrigColvolData(unitID, unitDefID)
 	if not origColvolCache[unitDefID] then
 		local scaleX, scaleY, scaleZ, offsetX, offsetY, offsetZ,
 			volumeType, testType, primaryAxis = spGetUnitCollisionVolumeData(unitID)
+		local myscale=1
 		origColvolCache[unitDefID] = {
-			scaleX, scaleY, scaleZ, offsetX, offsetY, offsetZ,
+			scaleX*myscale, scaleY*myscale, scaleZ*myscale, offsetX*myscale, offsetY*myscale, offsetZ*myscale,
 			volumeType, testType, primaryAxis
 		}
 	end
@@ -141,15 +153,6 @@ local function GetOrigColvolData(unitID, unitDefID)
 	return cache
 end
 
----@type {[UnitDefId]:number}
-local unitDefScale={}
-
-for udid, ud in pairs(UnitDefs) do
-	local def_scale=ud.customParams.def_scale
-	if def_scale then
-		unitDefScale[udid]=tonumber(def_scale)
-	end
-end
 
 local function UpdateUnitCollisionData(unitID, unitDefID, scales, force)
 	local ud = UnitDefs[unitDefID]
@@ -164,10 +167,12 @@ local function UpdateUnitCollisionData(unitID, unitDefID, scales, force)
 		scales={1,1,1}
 	end
 
-	local myscale=unitDefScale[unitID]
-	if myscale then
+	
+	local myscale=unitDefScale[unitDefID] or 1
+	if myscale~=1 then
 		scales={scales[1]*myscale,scales[2]*myscale,scales[3]*myscale}
 	end
+
 	local midTable = ud.model
 	local mid, aim
 	
@@ -195,13 +200,14 @@ local function UpdateUnitCollisionData(unitID, unitDefID, scales, force)
 		mid[1], mid[2], mid[3] = mid[1]*scales[1], mid[2]*scales[2], mid[3]*scales[3]
 		aim[1], aim[2], aim[3] = aim[1]*scales[1], aim[2]*scales[2], aim[3]*scales[3]
 	end
+
 	spSetUnitMidAndAimPos(unitID,
 		mid[1], mid[2], mid[3],
 		aim[1], aim[2], aim[3], true)
 		
 	if modelRadii[unitDefID] then
 		local mr = GetModelRadii(unitDefID)
-		spSetUnitRadiusAndHeight(unitID, mr.radius, mr.height)
+		spSetUnitRadiusAndHeight(unitID, mr.radius*myscale, mr.height*myscale)
 	end
 	
 	if noGrowUnitDefs[unitDefID] and not scales and not force then
@@ -296,6 +302,7 @@ function gadget:UnitCreated(unitID, unitDefID, teamID)
 	UpdateUnitCollisionData(unitID, unitDefID)
 end
 local spGetUnitDefID=Spring.GetUnitDefID
+
 local function OverrideMidAndAimPos(unitID, mid, aim)
 	if not spValidUnitID(unitID) then
 		return
