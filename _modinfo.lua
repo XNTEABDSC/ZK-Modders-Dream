@@ -1,13 +1,13 @@
 return {
+	version="v0.0.0.9",
+	modtype=1,
 	mutator="zk but more api",
-	name="ZK Modders Dream",
+	shortname="ZKMD",
+	description="later",
 	depend={
 		[1]="Zero-K v1.13.4.3",
 	},
-	shortname="ZKMD",
-	modtype=1,
+	name="ZK Modders Dream",
 	shortGame="ZK",
-	version="v0.0.0.8",
-	description="later",
 	game="Zero-K",
 }
