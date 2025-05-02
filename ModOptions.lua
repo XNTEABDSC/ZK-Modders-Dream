@@ -1082,7 +1082,7 @@ local moFiles=VFS.DirList("ModOptions", "*.lua") or {}
 for i = 1, #moFiles do
     local modefs = VFS.Include(moFiles[i])
     if modefs==nil then
-      Spring.Echo("Error: file " .. tostring(moFiles[i]) .. "returns nil, which is expected to be ModOption table")
+      Spring.Echo("Error: file " .. tostring(moFiles[i]) .. " returns nil, which is expected to be ModOption table")
 
     else
       for k,v in pairs(modefs) do
