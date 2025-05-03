@@ -103,17 +103,33 @@ local function FindMobileUnitLocation(uID, udid, tx, tz, radius)
 	return dx, dz
 end
 
+local teleportfeatures=ud.customparams.statictele_teleportfeatures and true or false
+
 local function OffsetTeleportUnit(uID, ox, oz)
 	if not oldBlocking[uID] then
 		return
 	end
 	local udid = Spring.GetUnitDefID(uID)
+	local isMobile = Spring.Utilities.GetMovetypeUnitDefID(udid)
+
+	local doTeleport=true
+	
+	if ud.customparams.statictele_teleportfeatures then
+		if not isMobile then
+			doTeleport=false
+		end
+	end
+	
+	if not doTeleport then
+		return
+	end
 	
 	local size = UnitDefs[udid].xsize
 	local _, _, _, ax, ay, az = Spring.GetUnitPosition(uID, true)
 	Spring.SpawnCEG("teleport_out", ax, ay, az, 0, 0, 0, size)
 	local dx, dz=ax+ox,az+oz
-	
+
+
 	GG.MoveGeneralUnit(uID, dx, false, dz)
 	
 	_, _, _, ax, ay, az = Spring.GetUnitPosition(uID, true)
