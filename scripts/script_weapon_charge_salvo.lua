@@ -1,10 +1,10 @@
-if not GG.goodBurstSalvo then
-    local goodBurstSalvo={}
-    GG.goodBurstSalvo=goodBurstSalvo
+if not Spring.UnitScript.script_weapon_charge_salvo then
+    local script_weapon_charge_salvo={}
+    Spring.UnitScript.script_weapon_charge_salvo=script_weapon_charge_salvo
     local ALLY_ACCESS = {allied = true}
 	local spGetGameFrame         = Spring.GetGameFrame
     local floor=math.floor
-    function goodBurstSalvo.newBurstWeapon(unitID,salvoCapacity,reloadTimePerSalvo)
+    function script_weapon_charge_salvo.newBurstWeapon(unitID,salvoCapacity,reloadTimePerSalvo)
         local o={}
         --[=[
         local count=salvoCapacity
@@ -68,11 +68,11 @@ if not GG.goodBurstSalvo then
         end
         return o
     end
-    function goodBurstSalvo.newBurstWeaponFromWD(unitID,wd)
+    function script_weapon_charge_salvo.newBurstWeaponFromWD(unitID,wd)
         local cp=wd.customParams or wd.customparams
         local salvo=tonumber(cp.script_burst)
         local fullreload=tonumber(cp.script_reload)
-        return goodBurstSalvo.newBurstWeapon(unitID,salvo,fullreload/salvo)
+        return script_weapon_charge_salvo.newBurstWeapon(unitID,salvo,fullreload/salvo)
     end
 end
-return GG.goodBurstSalvo
+return Spring.UnitScript.script_weapon_charge_salvo
