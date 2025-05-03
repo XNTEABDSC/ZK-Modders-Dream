@@ -106,7 +106,7 @@ local options = {
     desc   = "Extra mods. See source code for mods :3, in both gamedata/mods/ and gamedata/lua_mods/ ",
     type   = 'string',
     section= 'silly',
-    def    = "silly()",
+    def    = " ",
   },
   {
     key    = 'zombies',
