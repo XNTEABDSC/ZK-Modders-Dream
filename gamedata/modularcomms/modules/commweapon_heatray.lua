@@ -36,6 +36,9 @@ return{
         local GenAdvWeaponModule=shared.GenAdvWeaponModule
         local moddef2=GenAdvWeaponModule(moddef)
         moddef2.hardcodedID=54
+        --lazy remove(moddef2.requireChassis,"knight")
+        moddef2.requireChassis[#moddef2.requireChassis]=nil
+        --lazy remove(moddef2.requireChassis,"knight")
 		return {moddef,moddef2}
     end
 }
