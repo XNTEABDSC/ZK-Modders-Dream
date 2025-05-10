@@ -200,11 +200,15 @@ end
 for id, ud in pairs(UnitDefs) do
 	if ud.customParams then
 		if ud.customParams.drones then
-			local droneFunc = loadstring("return "..ud.customParams.drones)
-			local drones = droneFunc()
-			carrierDefs[id] = carrierDefs[id] or {}
-			for i=1,#drones do
-				carrierDefs[id][i] = Spring.Utilities.CopyTable(presets[drones[i]])
+			local droneFunc,err = loadstring("return "..ud.customParams.drones)
+			if not droneFunc then
+				Spring.Log("LuaRules/Configs/drone_defs.lua",LOG.ERROR,"Failed to loadstring for unit " .. ud.name .. "\n ".. "loading " .. "return "..ud.customParams.drones .."\n with error: " .. err)
+			else
+				local drones = droneFunc()
+				carrierDefs[id] = carrierDefs[id] or {}
+				for i=1,#drones do
+					carrierDefs[id][i] = Spring.Utilities.CopyTable(presets[drones[i]])
+				end
 			end
 		end
 		if ud.customParams.drone_defs_drone_spawn_pieces then
@@ -226,7 +230,7 @@ for name, data in pairs(carrierDefNames) do
 				end
 			end
 		end
-		carrierDefs[UnitDefNames[name].id] = data
+		carrierDefs[ud.id] = data
 	end
 end
 
