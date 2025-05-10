@@ -8,7 +8,7 @@ return {
 	shortGame='ZK',
 	modtype=1,
 	depend = {
-		[[rapid://zk:stable]],
-		-- [[Zero-K v1.13.4.3]]
+		-- [[rapid://zk:stable]],
+		[[Zero-K v1.13.4.3]]
 	},
 }
