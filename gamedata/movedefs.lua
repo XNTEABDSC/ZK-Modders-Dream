@@ -242,6 +242,7 @@ do
 			if b~=nil then
 
 				local res=utils.MoveDef_TryGen(b,s,p)
+				--Spring.Echo("movedefs: Try Gen Result:")
 				moveDefs[md]=res
 			end
 			

@@ -121,7 +121,9 @@ Spring.Echo("RunUnitDefsTweakFns End")
 do
 	for _, ud in pairs(UnitDefs) do
 		if ud.customparams.def_scale then
+			-- Spring.Echo("Scaling unit " .. tostring(ud.name))
 			utils.set_scale(ud,ud.customparams.def_scale)
+			-- Spring.Echo("Scaling unit " .. tostring(ud.name) .. " end")
 		end
 	end
 end

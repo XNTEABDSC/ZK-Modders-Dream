@@ -42,7 +42,7 @@ if not Spring.Utilities.wacky_utils.table_replace then
                     local ss=GetDimensions(v)
                     if ss then
                         if #ss~=3 then
-                            Spring.Echo("Odd things find " .. v)
+                            Spring.Echo("Odd thing found " .. v)
                         end
                         for i = 1, #ss do
                             ss[i]=ss[i]*scale
@@ -123,18 +123,30 @@ if not Spring.Utilities.wacky_utils.table_replace then
         end
         --local modify_all=wacky_utils.modify_all
         function wacky_utils.set_scale(ud,scale)
+            
+            -- Spring.Echo("set_scale scale: " .. tostring(scale))
+            -- Spring.Echo("modify_all udtryScales3")
             modify_all(ud,udtryScales3,scale3(scale))
+            -- Spring.Echo("modify_all udtryScales1")
             modify_all(ud,udtryScales1,scale1(scale))
+            -- Spring.Echo("modify_all udtryScales1round")
             modify_all(ud,udtryScales1round,scale1round(scale))
 
             ud.customparams=ud.customparams or {}
             local udcp=ud.customparams
+            
+            -- Spring.Echo("modify_all udcptryScales3")
             modify_all(udcp,udcptryScales3,scale3(scale))
+            -- Spring.Echo("modify_all udcptryScales1")
             modify_all(udcp,udcptryScales1,scale1(scale))
             ud.customparams.dynamic_colvol=true
+            
+            -- Spring.Echo("modify_all udcpdefScales1")
             modify_all(udcp,udcpdefScales1,defscale1(scale))
 
+            
             if ud.movementclass then
+                -- Spring.Echo("modify movementclass")
                 local b,s,p=wacky_utils.MoveDef_CanGen(ud.movementclass)
                 if b then
                     s=s*scale
@@ -142,15 +154,21 @@ if not Spring.Utilities.wacky_utils.table_replace then
                     if s<1 then
                         s=1
                     end
-                    --Spring.Echo("Change unit " .. ud.name .. "'s movementclass to: " ..p .. b .. tostring(s))
+                    -- Spring.Echo("Change unit " .. ud.name .. "'s movementclass to: " ..p .. b .. tostring(s))
                     ud.movementclass=p .. b .. tostring(s)
                 end
             end
+            
             if ud.footprintx then
+                -- Spring.Echo("modify footprint")
                 local oldfpx,oldfpz=ud.footprintx,ud.footprintz
                 local newfpx,newfpz=scale1round(scale)(oldfpx),scale1round(scale)(oldfpz)
                 ud.footprintx,ud.footprintz=newfpx,newfpz
+                -- Spring.Echo(("modify footprint from %s,%s to %s,%s"):format(tostring(oldfpx),tostring(oldfpz),tostring(newfpx),tostring(newfpz)))
                 if ud.yardmap then
+                    -- Spring.Echo("modify yardmap: ")
+                    -- Spring.Echo(tostring(ud.yardmap))
+
                     ud.yardmap=ScaleYardMap(ud.yardmap,oldfpx,oldfpz,newfpx,newfpz)
                 end
             end

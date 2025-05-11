@@ -1,7 +1,7 @@
 return {
 	name='_ZK_Modders_Dream_dev',
 	description='later',
-	version='v0.0.0.15',
+	version='v0.0.0.27',
 	shortname='ZKMD',
 	mutator='zk but more api',
 	game='Zero-K',

@@ -111,10 +111,17 @@ if not Spring.Utilities.wacky_utils.table_replace then
         end
         return nil
     end
+    ---@param baset string
+    ---@param size number
+    ---@param prefixs string
+    ---@return table
     function wacky_utils.MoveDef_TryGen(baset,size,prefixs)
+        Spring.Echo(string.format("MoveDefGen Generating base: %s, size: %s, prefixs: %s", tostring(baset), tostring(size), tostring(prefixs)))
         local movedef=BaseGen[baset](size)
+        Spring.Echo(string.format("MoveDefGen Generating prefixs len: %s",tostring(prefixs:len())))
         for i=1,string.len(prefixs) do
             local prefix=string.sub(prefixs,i,i)
+            Spring.Echo(string.format("MoveDefGen Applying Prefix: %s",tostring(prefix)))
             PrefixDo[prefix](movedef,baset,size)
         end
         return movedef
