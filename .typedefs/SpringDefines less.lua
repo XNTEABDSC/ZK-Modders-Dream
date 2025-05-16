@@ -1,6 +1,8 @@
 -- ---@diagnostic disable: missing-return
 ---@meta Spring
 
+---@class table:{[any]:any}
+
 Spring=Spring or {}
 ---@class UnitId : integer
 ---@class UnitDefId:integer

@@ -1648,7 +1648,7 @@ function Spring.GetModelPieceList(modelName) end
 function Spring.GetUnitRootPiece(unitID) end
 
 ---@param unitID UnitId
----@return nil|table<string,number> pieceInfos where keys are piece names and values are indices
+---@return table<string,number> pieceInfos where keys are piece names and values are indices
 function Spring.GetUnitPieceMap(unitID) end
 
 ---@param unitID UnitId
