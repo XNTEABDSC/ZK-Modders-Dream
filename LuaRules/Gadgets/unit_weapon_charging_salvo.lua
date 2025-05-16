@@ -378,7 +378,7 @@ function gadget:GameFrame(f)
     end
 end
 
-Spring.UnitScript.script_weapon_charge_salvo={
+Spring.UnitScript.weapon_charge_salvo={
     SetUnitWeaponChargeData=SetUnitWeaponChargeData,
     ChargeDatas=ChargeDatas,
     ChargeDataWDs=ChargeDataWDs,

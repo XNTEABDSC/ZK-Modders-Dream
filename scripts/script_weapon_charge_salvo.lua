@@ -1,10 +1,9 @@
-if not Spring.UnitScript.script_weapon_charge_salvo then
-    local script_weapon_charge_salvo={}
-    Spring.UnitScript.script_weapon_charge_salvo=script_weapon_charge_salvo
+if not Spring.UnitScript.script_weapon_charging_salvo then
+    local script_weapon_charging_salvo={}
     local ALLY_ACCESS = {allied = true}
 	local spGetGameFrame         = Spring.GetGameFrame
     local floor=math.floor
-    function script_weapon_charge_salvo.newBurstWeapon(unitID,salvoCapacity,reloadTimePerSalvo)
+    function script_weapon_charging_salvo.newBurstWeapon(unitID,salvoCapacity,reloadTimePerSalvo)
         local o={}
         --[=[
         local count=salvoCapacity
@@ -68,11 +67,12 @@ if not Spring.UnitScript.script_weapon_charge_salvo then
         end
         return o
     end
-    function script_weapon_charge_salvo.newBurstWeaponFromWD(unitID,wd)
+    function script_weapon_charging_salvo.newBurstWeaponFromWD(unitID,wd)
         local cp=wd.customParams or wd.customparams
         local salvo=tonumber(cp.script_burst)
         local fullreload=tonumber(cp.script_reload)
-        return script_weapon_charge_salvo.newBurstWeapon(unitID,salvo,fullreload/salvo)
+        return script_weapon_charging_salvo.newBurstWeapon(unitID,salvo,fullreload/salvo)
     end
+    Spring.UnitScript.script_weapon_charging_salvo=script_weapon_charging_salvo
 end
-return Spring.UnitScript.script_weapon_charge_salvo
+return Spring.UnitScript.script_weapon_charging_salvo
