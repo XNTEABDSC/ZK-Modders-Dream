@@ -90,6 +90,9 @@ local function LoadUnitPieceDatas(uid,udid)
 
 	local UnitPiecesMatrix={}
 	UnitsPiecesMatrix[udid]=UnitPiecesMatrix
+
+	local UnitPiecesParent={}
+	UnitsPiecesParent[udid]=UnitPiecesParent
 	
 	UnitsPieceRoot[udid]=spGetUnitRootPiece(uid)
 
@@ -100,7 +103,14 @@ local function LoadUnitPieceDatas(uid,udid)
 		UnitPieceDrawInfos[pieceId]=PieceInfo
 		
 		UnitPiecesMatrix[pieceId]={spGetUnitPieceMatrix(uid,pieceId)}
-		UnitsPiecesParent[pieceId]=piecesMap[PieceInfo.parent or 1]--PieceInfo
+		---@type string|integer
+		local parent=PieceInfo.parent
+		if type(parent)=="string" then
+			parent=piecesMap[parent]
+		end
+		Spring.Echo(tostring(parent))
+		---@cast parent integer
+		UnitPiecesParent[pieceId]=parent--PieceInfo
 		--GetUnitPieceMatrix
 		--UnitsPiecesRoot
 	end

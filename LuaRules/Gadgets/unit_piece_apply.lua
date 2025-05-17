@@ -17,10 +17,134 @@ GG.Pieces=Pieces
 local jsonencode=Spring.Utilities.json.encode
 local jsondecode=Spring.Utilities.json.decode
 
+
+---@class DynPieceInfoProcessed
+---@field matrix {[integer]:number}?
+---@field matrix2 {[integer]:number}?
+---@field drawList integer?
+
+---@type {[string]:DynPieceInfoProcessed}
+local DynPieceInfos={}
+
+
+local wacky_utils = Spring.Utilities.wacky_utils
+local MultMatrix4x4 = wacky_utils.MultMatrix4x4
+local NewMatrix4x4Unit = wacky_utils.NewMatrix4x4Unit
+
+
+local spGetUnitDefID = Spring.GetUnitDefID
+local spGetUnitPieceList = Spring.GetUnitPieceList
+local spGetUnitPieceMap = Spring.GetUnitPieceMap
+
+
+
 if (gadgetHandler:IsSyncedCode()) then
-    ---@type {[string]:boolean}
-    local DynPieceInfos={}
     
+    
+    ---@param infos DynPieceInfo
+    ---@return {[integer]:DynPieceInfoProcessed}
+    local function ProcessDynPieceInfos(unitDefId,infos)
+        local result={}
+        local unitPieces = Pieces.UnitsPieces[unitDefId]
+        local unitPiecesMap = Pieces.UnitsPiecesMap[unitDefId]
+        local unitPieceInfos = Pieces.UnitsPieceInfos[unitDefId]
+        local unitPiecesMatrix = Pieces.UnitsPiecesMatrix[unitDefId]
+        local unitPiecesParent = Pieces.UnitsPiecesParent[unitDefId]
+        --local unitPieceDrawLists = Pieces.UnitsPieceDrawLists[unitDefId]
+        ---@return {[integer]:number}
+        local function GetMatrixFromAToB(a, b)
+            local Matrix = NewMatrix4x4Unit() --UnitPiecesMatrix[a]
+            local cur = a
+            while (cur ~= nil and cur ~= b) do
+                local Matrix2 = unitPiecesMatrix[cur]
+                Matrix = MultMatrix4x4(Matrix, Matrix2)
+                cur = unitPiecesParent[cur]
+            end
+            if cur == nil then
+                Spring.Echo("unit_piece_apply: piece " ..
+                tostring(unitPieces[a]) .. " dont have parent " .. tostring(unitPieces[b]))
+            end
+            return Matrix
+        end
+
+        ---@param info DynPieceInfo
+        local function ProcessDynPieceInfo(info)
+            local basePieceId = info.basePiece
+            if type(basePieceId) == "string" then
+                basePieceId = unitPiecesMap[basePieceId]
+            end
+
+            local matrix = info.matrixFromParent
+            if type(matrix)=="table" then
+            else
+                if type(matrix)=="string" then
+                    matrix=unitPiecesMap[matrix]
+                end
+                if type(matrix)=="number" then
+                    matrix = GetMatrixFromAToB(basePieceId, matrix)
+                end
+            end
+            ---@cast matrix table|nil
+            -- ---@cast Matrix -unknown|nil
+            local matrix2 = info.matrix2
+            --[=[
+        if Matrix2 then
+            Matrix=MultMatrix44(Matrix2,Matrix)
+        end]=]
+
+            ---@type DynPieceInfoProcessed
+            local o2 = {
+                basePieceId = basePieceId,
+                matrix = matrix,
+                matrix2 = matrix2,
+            }
+            return o2
+        end
+
+        for k,v in pairs(infos) do
+            result[k]=ProcessDynPieceInfo(v)
+        end
+        return result
+    end
+    
+    
+    local spSetUnitPieceMatrix = Spring.SetUnitPieceMatrix
+    local spSetUnitPieceParent = Spring.SetUnitPieceParent
+    local spGetUnitPieceMatrix = Spring.GetUnitPieceMatrix
+
+    ---@param unitId UnitId
+    ---@param tarPiece integer
+    ---@param srcPieceInfo DynPieceInfoProcessed
+    local function ApplyDynPieceInfo(unitId,tarPiece,srcPieceInfo)
+        
+        local matrix = srcPieceInfo.matrix or { spGetUnitPieceMatrix(unitId,tarPiece) }
+        local matrix2 = srcPieceInfo.matrix2
+        if matrix2 then
+            matrix = MultMatrix4x4(matrix2, matrix)
+        end
+        spSetUnitPieceMatrix(unitId, tarPiece, matrix)
+    end
+
+    ---@param unitId UnitId
+    ---@param tarPieceToSrcPieceInfo {[integer|string]:DynPieceInfoProcessed}
+    local function ApplyDynPieceInfos(unitId,tarPieceToSrcPieceInfo)
+        local pieceList = spGetUnitPieceList(unitId)
+        local pieceMap = spGetUnitPieceMap(unitId)
+
+        
+
+        for k,v in pairs(tarPieceToSrcPieceInfo) do
+            if type(k)=="string" then
+                k=pieceMap[k]
+            end
+            ApplyDynPieceInfo(unitId,k,v)
+        end
+        
+    end
+
+    Pieces.ApplyDynPieceInfo = ApplyDynPieceInfo
+    Pieces.ApplyDynPieceInfos = ApplyDynPieceInfos
+
     ---@class DynPieceInfo
     ---@field basePiece string|integer
     ---@field matrixFromParent {[integer]:number}|string|integer?
@@ -42,35 +166,29 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         if DynPieceInfos[name] then return end
         TryLoadUnitPiecesInfos(unitDefId)
+        local result=ProcessDynPieceInfos(unitDefId,dynPieceInfo)
         SendToUnsynced("CreateDynPieceInfos",unitDefId,jsonencode(dynPieceInfo))
-        for k,v in pairs(dynPieceInfo) do
-            DynPieceInfos[k]=true
+        for k,v in pairs(result) do
+            DynPieceInfos[k]=v
         end
     end
     Pieces.CreateDynPieceInfo=CreateDynPieceInfo
     
     ---@param unitId UnitId
-    ---@param tarPieceToSrcPieceInfo {[integer|string]:string} {[pieceIndex]:srcDynPieceName}
-    local function ApplyDynPieceInfosNamed(unitId,tarPieceToSrcPieceInfo)
-        SendToUnsynced("ApplyDynPieceInfosNamed",unitId,jsonencode(tarPieceToSrcPieceInfo))
+    ---@param tarPieceToSrcPieceInfoNamed {[integer|string]:string} {[pieceIndex]:srcDynPieceName}
+    local function ApplyDynPieceInfosNamed(unitId,tarPieceToSrcPieceInfoNamed)
+        local tarPieceToSrcPieceInfo={}
+        for k,v in pairs(tarPieceToSrcPieceInfoNamed) do
+            tarPieceToSrcPieceInfo[k]=DynPieceInfos[v]
+        end
+        ApplyDynPieceInfos(unitId,tarPieceToSrcPieceInfo)
+        local tarPieceToSrcPieceInfoJson=jsonencode(tarPieceToSrcPieceInfoNamed)
+        Spring.Echo("send: " .. tarPieceToSrcPieceInfoJson)
+        SendToUnsynced("ApplyDynPieceInfosNamed",unitId,tarPieceToSrcPieceInfoJson)
     end
     Pieces.ApplyDynPieceInfosNamed=ApplyDynPieceInfosNamed
 else
     
-    ---@class DynPieceInfoProcessed
-    ---@field matrix {[integer]:number}?
-    ---@field matrix2 {[integer]:number}?
-    ---@field drawList integer?
-
-    ---@type {[string]:DynPieceInfoProcessed}
-    local DynPieceInfos={}
-
-
-    local wacky_utils = Spring.Utilities.wacky_utils
-    local MultMatrix4x4 = wacky_utils.MultMatrix4x4
-    local NewMatrix4x4Unit = wacky_utils.NewMatrix4x4Unit()
-
-
     local glCreateList = gl.CreateList
     local glPushMatrix = gl.PushMatrix
     local glPopMatrix = gl.PopMatrix
@@ -78,11 +196,10 @@ else
     local glCallList = gl.CallList
 
 
-
     ---@param infos DynPieceInfo
-    ---@return DynPieceInfoProcessed
-    local function ProcessDynPieceInfos(unitDefId,infos)
-        local res={}
+    ---@return {[integer]:DynPieceInfoProcessed}
+    local function ProcessDynPieceInfosUnsynced(unitDefId,infos)
+        local result={}
         local unitPieces = Pieces.UnitsPieces[unitDefId]
         local unitPiecesMap = Pieces.UnitsPiecesMap[unitDefId]
         local unitPieceInfos = Pieces.UnitsPieceInfos[unitDefId]
@@ -137,7 +254,7 @@ else
                         local pidx
                         local pMatrix
                         local pMatrix2
-                        if type(p)=="table" then 
+                        if type(p)=="table" then
                             pidx = p.piece
                             pMatrix = p.matrix
                             pMatrix2 = p.matrix2
@@ -178,12 +295,17 @@ else
         end
 
         for k,v in pairs(infos) do
-            res[k]=ProcessDynPieceInfo(v)
+            result[k]=ProcessDynPieceInfo(v)
         end
-        return res
+        return result
     end
 
-    Pieces.ProcessDynPieceInfos = ProcessDynPieceInfos
+
+
+
+
+
+    Pieces.ProcessDynPieceInfosUnsynced = ProcessDynPieceInfosUnsynced
 
 
     local SetupRendering
@@ -205,59 +327,52 @@ else
     end
     Pieces.SetupRendering=SetupRendering
 
-    local spGetUnitPieceList = Spring.GetUnitPieceList
-    local spGetUnitPieceMap = Spring.GetUnitPieceMap
-    local spSetUnitPieceMatrix = Spring.SetUnitPieceMatrix
-    local spSetUnitPieceParent = Spring.SetUnitPieceParent
-    local spGetUnitPieceMatrix = Spring.GetUnitPieceMatrix
     local surSetPieceList = Spring.UnitRendering.SetPieceList
 
-    local spGetUnitDefID = Spring.GetUnitDefID
 
     ---@param unitId UnitId
     ---@param tarPiece integer
     ---@param srcPieceInfo DynPieceInfoProcessed
-    local function ApplyDynPieceInfo(unitId,tarPiece,srcPieceInfo)
+    local function ApplyDynPieceInfoUnsynced(unitId,tarPiece,srcPieceInfo)
         
-        local matrix = srcPieceInfo.matrix or { spGetUnitPieceMatrix(unitId,tarPiece) }
-        local matrix2 = srcPieceInfo.matrix2
-        if matrix2 then
-            matrix = MultMatrix4x4(matrix2, matrix)
-        end
-        spSetUnitPieceMatrix(unitId, tarPiece, matrix)
         local dList = srcPieceInfo.drawList
         if dList then
-            surSetPieceList(unitID, 1, tarPiece, dList)
+            Spring.Echo("Setting dList")
+            surSetPieceList(unitId, 1, tarPiece, dList)
         end
     end
 
     ---@param unitId UnitId
     ---@param tarPieceToSrcPieceInfo {[integer|string]:DynPieceInfoProcessed}
-    local function ApplyDynPieceInfos(unitId,tarPieceToSrcPieceInfo)
+    local function ApplyDynPieceInfosUnsynced(unitId,tarPieceToSrcPieceInfo)
         local pieceList = spGetUnitPieceList(unitId)
         local pieceMap = spGetUnitPieceMap(unitId)
 
         
         ---@cast pieceMap -nil
         SetupRendering(unitId, spGetUnitDefID(unitId))
+        
+        for pID,pName in pairs(pieceList) do --set all piece displaylists to default
+            Spring.UnitRendering.SetPieceList(unitId,1,pID,nil)
+        end
 
         for k,v in pairs(tarPieceToSrcPieceInfo) do
             if type(k)=="string" then
                 k=pieceMap[k]
             end
-            ApplyDynPieceInfo(unitId,k,v)
+            ApplyDynPieceInfoUnsynced(unitId,k,v)
         end
         
     end
 
-    Pieces.ApplyDynPieceInfo = ApplyDynPieceInfo
-    Pieces.ApplyDynPieceInfos = ApplyDynPieceInfos
+    Pieces.ApplyDynPieceInfoUnsynced = ApplyDynPieceInfoUnsynced
+    Pieces.ApplyDynPieceInfosUnsynced = ApplyDynPieceInfosUnsynced
 
 
     function gadget:Initialize()
         gadgetHandler:AddSyncAction("CreateDynPieceInfos",function(msg,unitDefId,dynPieceInfo)
             --ProcessDynPieceInfo
-            local res=ProcessDynPieceInfos(unitDefId,jsondecode(dynPieceInfo))
+            local res=ProcessDynPieceInfosUnsynced(unitDefId,jsondecode(dynPieceInfo))
             for k,v in pairs(res) do
                 DynPieceInfos[k]=v
             end
@@ -266,14 +381,16 @@ else
         
         ---@param msg string
         ---@param unitId UnitId 
-        ---@param tarPieceToSrcPieceInfo string
-        function(msg,unitId,tarPieceToSrcPieceInfo)
+        ---@param tarPieceToSrcPieceInfoJson string
+        function(msg,unitId,tarPieceToSrcPieceInfoJson)
+            Spring.Echo("receive: " .. tostring(tarPieceToSrcPieceInfoJson))
+            local tarPieceToSrcPieceInfo=jsondecode(tarPieceToSrcPieceInfoJson)
             
-            tarPieceToSrcPieceInfo=jsondecode(tarPieceToSrcPieceInfo)
             for k,v in pairs(tarPieceToSrcPieceInfo) do
                 tarPieceToSrcPieceInfo[k]=DynPieceInfos[v]
             end
-            ApplyDynPieceInfos(unitId,jsondecode(tarPieceToSrcPieceInfo))
+            Spring.Utilities.TableEcho(tarPieceToSrcPieceInfo)
+            ApplyDynPieceInfosUnsynced(unitId,tarPieceToSrcPieceInfo)
         end)
     end
 end

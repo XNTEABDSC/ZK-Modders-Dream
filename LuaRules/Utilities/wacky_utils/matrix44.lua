@@ -35,7 +35,7 @@ if not Spring.Utilities.wacky_utils.MultMatrix4x4 then
                     a[r2i+1]*b[0+c]+
                     a[r2i+2]*b[4+c]+
                     a[r2i+3]*b[8+c]+
-                    a[r2i+4]*b[16+c]
+                    a[r2i+4]*b[12+c]
             end
         end
         return v
