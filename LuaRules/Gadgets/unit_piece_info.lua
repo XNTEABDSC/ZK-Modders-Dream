@@ -9,7 +9,7 @@ function gadget:GetInfo()
 		date      = "",
 		license   = "GNU GPL, v2 or later",
 		layer     = 100,
-		enabled   = false --loaded by default?
+		enabled   = true --loaded by default?
 	}
 end
 
@@ -142,7 +142,7 @@ local function LoadUnitPiecesInfos(udid)
 		spSetUnitNeutral(uid,true)
 		LoadUnitPieceDatas(uid,udid)
 		SendToUnsynced("LoadUnitPieceDatas",uid,udid)
-		spDestroyUnit(uid)
+		spDestroyUnit(uid,false,true,nil,true)
 	end
 	
 end
