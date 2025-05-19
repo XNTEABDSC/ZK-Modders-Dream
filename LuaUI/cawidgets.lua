@@ -444,48 +444,11 @@ end
 
 --------------------------------------------------------------------------------
 
-local TrackMultipleTable
 
-local function TrackMultipleTable_Get(maintable,tables,k)
-	local newMainTable=maintable[k]
-	if type(newMainTable)~="table" then
-		return newMainTable
-	end
-	if not newMainTable then
-		newMainTable={}
-		maintable[k]={}
-	end
-	local newTables={}
-	for id, atable in pairs(tables) do
-		local v=atable[k]
-		if type(v)=="table" then
-			newTables[#newTables+1] = v
-		else
-			return v
-		end
-	end
-	return TrackMultipleTable(newMainTable,newTables)
-end
 
-TrackMultipleTable= function (maintable,tables)
-	local o={}
-	setmetatable(o,{
-		__index=function (_,k)
-			return TrackMultipleTable_Get(maintable,tables,k)
-		end,
-		__newindex=function (t,k,v)
-			local getres=TrackMultipleTable_Get(maintable,tables,k)
-			if type(v)~="table" and v~=getres then
-				maintable[k]=v
-			else
-				for key, value in pairs(v) do
-					getres[key]=value
-				end
-			end
-		end
-	})
-	return o
-end
+VFS.Include("LuaRules/Utilities/wacky_utils.lua")
+local utils=Spring.Utilities.wacky_utils
+local track_multiple_table=utils.track_multiple_table
 
 local function BuildConfigData(modinfo)
 
@@ -519,7 +482,7 @@ local function BuildConfigData(modinfo)
 		dependsConfigData[i]=BuildConfigData(GetModInfo(dependModName))
 	end
 
-	local o=TrackMultipleTable(myConfigData,dependsConfigData)
+	local o=track_multiple_table(myConfigData,dependsConfigData)
 	
 	return o
 end
