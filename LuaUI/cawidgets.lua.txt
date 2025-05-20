@@ -55,14 +55,20 @@ vfsInclude("LuaUI/savetable.lua"                     , nil, vfsGame)
 local CheckLUAFileAndBackup = vfsInclude("LuaUI/file_backups.lua", nil, vfsGame)
 local MessageProcessor = vfsInclude("LuaUI/chat_preprocess.lua", nil, vfsGame)
 
+local modinfo=VFS.Include("modinfo.lua")
+
 local ORDER_FILENAME     = LUAUI_DIRNAME .. 'Config/ZK_order.lua'
-local CONFIG_FILENAME    = LUAUI_DIRNAME .. 'Config/ZK_data.lua'
+local CONFIG_FILENAME    = LUAUI_DIRNAME .. 'Config/' .. (modinfo.shortname or modinfo.name) ..'_data.lua'
 local WIDGET_DIRNAME     = LUAUI_DIRNAME .. 'Widgets/'
 
 local GetModInfo=function (modname)
+	local res=VFS.GetArchiveInfo(modname)
+	Spring.Utilities.TableEcho(res,"GetArchiveInfo")
+	return res
+	--[=[
 	return VFS.UseArchive(modname,function ()
 		return VFS.Include("modinfo.lua")
-	end)
+	end)]=]
 end
 
 --VFS.UseArchive
@@ -157,6 +163,7 @@ widgetHandler = {
 	widgets = {},
 
 	configData = {},
+	configDataToSave = {},
 	orderList = {},
 
 	knownWidgets = {},
@@ -450,78 +457,85 @@ VFS.Include("LuaRules/Utilities/wacky_utils.lua")
 local utils=Spring.Utilities.wacky_utils
 local track_multiple_table=utils.track_multiple_table
 
-local function BuildConfigData(modinfo)
-
-
-	local CONFIG_NAME=modinfo.shortname or modinfo.name
-	local CONFIG_FILENAME = LUAUI_DIRNAME .. 'Config/' .. CONFIG_NAME .. '_data.lua'
-	local myConfigData
-	local chunk, err = loadfile(CONFIG_FILENAME)
-	if (chunk == nil) then
-		
-	else
-		local tmp = {}
-		setfenv(chunk, tmp)
-		myConfigData = chunk()
-		if (not myConfigData) then
-			myConfigData = {} -- safety
-		end
-		if (myConfigData.version or 0) < DATA_VERSION then
-			myConfigData = {}
-			myConfigData.version = DATA_VERSION
-		end
-	end
-
-	if modinfo.shortname=="ZK" then
-		return myConfigData
-	end
-
-	local dependsConfigData={}
-	local depends=modinfo.depend
-	for i, dependModName in pairs(depends) do
-		dependsConfigData[i]=BuildConfigData(GetModInfo(dependModName))
-	end
-
-	local o=track_multiple_table(myConfigData,dependsConfigData)
-	
-	return o
-end
-
-function widgetHandler:LoadConfigData()
-	self.configData=BuildConfigData(
-		--GetModInfo()
-		VFS.Include("modinfo.lua")
-	)
-	--[=[
+local function LoadSingleConfigData(CONFIG_FILENAME)
+	local configData
 	local chunk, err = loadfile(CONFIG_FILENAME)
 	if (chunk == nil) then
 		return {}
 	else
 		local tmp = {}
 		setfenv(chunk, tmp)
-		self.configData = chunk()
-		if (not self.configData) then
-			self.configData = {} -- safety
+		configData = chunk()
+		if (not configData) or (configData.version or 0) < DATA_VERSION then
+			configData = {}
+			configData.version = DATA_VERSION
 		end
-		if (self.configData.version or 0) < DATA_VERSION then
-			self.configData = {}
-			self.configData.version = DATA_VERSION
-		end
-	end]=]
+	end
+	return configData
 end
 
+local function BuildConfigData(modinfo)
+
+	local CONFIG_NAME=modinfo.shortname or modinfo.name
+	local CONFIG_FILENAME = LUAUI_DIRNAME .. 'Config/' .. CONFIG_NAME .. '_data.lua'
+	Spring.Echo("cawidgets.lua: Check ConfigData " .. CONFIG_FILENAME)
+	local myConfigData=LoadSingleConfigData(CONFIG_FILENAME)
+
+	if modinfo.shortname=="ZK" then
+		return myConfigData,myConfigData
+	end
+
+	local dependsConfigData={}
+	local depends=modinfo.depend
+	for i, dependModName in pairs(depends or {}) do
+		dependsConfigData[i],_=BuildConfigData(GetModInfo(dependModName))
+	end
+
+	local o=track_multiple_table(myConfigData,dependsConfigData)
+	
+	return o,myConfigData
+end
+
+function widgetHandler:LoadConfigData()
+	--[=[
+	self.configData,self.configDataToSave=BuildConfigData(
+		--GetModInfo()
+		VFS.Include("modinfo.lua")
+	)
+	--]=]
+	-- [=[
+	local configData=LoadSingleConfigData(CONFIG_FILENAME)
+	local configDataToSave=track_multiple_table(configData,{})
+	self.configDataToSave=configDataToSave
+	self.configData=configData
+	self.configDataToSend=utils.track_multiple_table_get_all(configDataToSave)
+	--]=]
+end
+
+function widgetHandler:SaveWidgetConfigData(w)
+	if (w.GetConfigData) then
+		local ok, err = pcall(function()
+			self.configDataToSave[w.whInfo.name] = w:GetConfigData()
+		end)
+		if not ok then Spring.Log(HANDLER_BASENAME, LOG.ERROR, "Failed to GetConfigData from: " .. w.whInfo.name.." ("..err..")") end
+	end
+end
+
+function widgetHandler:SendWidgetConfigData(w)
+	local data = self.configDataToSend[w.whInfo.name]
+	if (w.SetConfigData and data) then
+		w:SetConfigData(data)
+	end
+	
+end
 
 function widgetHandler:SaveConfigData()
 	resetWidgetDetailLevel = false
 	self:LoadConfigData()
 	for _, w in ipairs(self.widgets) do
-		if (w.GetConfigData) then
-			local ok, err = pcall(function()
-				self.configData[w.whInfo.name] = w:GetConfigData()
-			end)
-			if not ok then Spring.Log(HANDLER_BASENAME, LOG.ERROR, "Failed to GetConfigData from: " .. w.whInfo.name.." ("..err..")") end
-		end
+		self:SaveWidgetConfigData(w)
 	end
+	Spring.Echo("Saving " .. CONFIG_FILENAME)
 	table.save(self.configData, CONFIG_FILENAME, '-- Widget Custom Data')
 end
 
@@ -529,10 +543,7 @@ end
 function widgetHandler:SendConfigData()
 	self:LoadConfigData()
 	for _, w in ipairs(self.widgets) do
-		local data = self.configData[w.whInfo.name]
-		if (w.SetConfigData and data) then
-			w:SetConfigData(data)
-		end
+		self:SendConfigData(w)
 	end
 end
 
@@ -809,10 +820,8 @@ function widgetHandler:LoadWidget(filename, _VFSMODE)
 	end
 
 	-- load the config data
-	local config = self.configData[name]
-	if (widget.SetConfigData and config) then
-		widget:SetConfigData(config)
-	end
+	self:SendWidgetConfigData(widget)
+	
 
 	if kbytes > 0 then
 		collectgarbage("collect") -- mark
@@ -1132,12 +1141,9 @@ function widgetHandler:RemoveWidget(widget)
 	end
 
 	local name = widget.whInfo.name
-	if (widget.GetConfigData) then
-		local ok, err = pcall(function()
-			self.configData[name] = widget:GetConfigData()
-		end)
-		if not ok then Spring.Log(HANDLER_BASENAME, LOG.ERROR, "Failed to GetConfigData: " .. name.." ("..err..")") end
-	end
+
+	self:SaveWidgetConfigData(widget)
+
 	self.knownWidgets[name].active = false
 	if (widget.Shutdown) then
 		widget:Shutdown()

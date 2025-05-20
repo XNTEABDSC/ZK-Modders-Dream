@@ -2,9 +2,6 @@ VFS.Include("LuaRules/Utilities/wacky_utils/include.lua")
 if not Spring.Utilities.wacky_utils.table_replace then
     local wacky_utils=Spring.Utilities.wacky_utils
 
-    wacky_utils.None=function ()
-        return nil
-    end
 
     ---Put things in tweaks to t at same key. <br/>
     ---for k, v in pairs(tweaks) do <br/>
