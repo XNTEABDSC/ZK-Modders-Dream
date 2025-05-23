@@ -49,7 +49,8 @@
         "GetUnitValue",
         "hat",
         "SetUnitValue",
-        "cross"
+        "cross",
+        "IsInMove"
         //,{ "name": "script", "include": "scripts/**.lua" }
     ],
     "runtime.version": "Lua 5.1",
