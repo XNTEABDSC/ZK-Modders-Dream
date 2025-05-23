@@ -1,5 +1,5 @@
 VFS.Include("LuaRules/Utilities/wacky_utils/include.lua")
-if not Spring.Utilities.wacky_utils.justeval then
+if not Spring.Utilities.wacky_utils.justeval_errnil then
     local wacky_utils=Spring.Utilities.wacky_utils
     wacky_utils.wacky_utils_include("mt_union")
     --VFS.Include("LuaRules/Utilities/wacky_utils/mt_union.lua")
@@ -51,7 +51,7 @@ if not Spring.Utilities.wacky_utils.justeval then
     end
     wacky_utils.justloadstring=justloadstring
 
-    local function justeval2(str,_gextra,_glevel)
+    local function justeval_errerr(str,_gextra,_glevel)
         if type(str)~="string" then
             return str
         end
@@ -71,18 +71,30 @@ if not Spring.Utilities.wacky_utils.justeval then
             --return nil
 		end
     end
-    wacky_utils.justeval2=justeval2
+    wacky_utils.justeval_errerr=justeval_errerr
 
-    local function justeval(str)
+    local function justeval_errnil(str,_gextra,_glevel)
         local postfunc, err = loadstring("return " .. str)
 		if postfunc then
+            
+            _glevel=_glevel or 1
+            local _gr=getfenv(_glevel)
+            if _gextra then
+                setfenv(postfunc,mt_union(_gextra,_gr))
+            else
+                setfenv(postfunc,_gr)
+            end
+
             local suc,res=pcall(postfunc)
 			return suc and res or nil
 		else
             return nil
 		end
     end
-    wacky_utils.justeval=justeval
+    wacky_utils.justeval_errnil=justeval_errnil
 
+    local function justeval(str,env)
+        
+    end
     Spring.Utilities.wacky_utils=wacky_utils
 end

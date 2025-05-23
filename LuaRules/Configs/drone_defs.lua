@@ -182,7 +182,7 @@ for id, ud in pairs(UnitDefs) do
 		--[==[
 		presets[ud.name]=utils.justloadstring(predefs,Globals)
 		presets[ud.name].drone=id]==]
-		local presetstable=utils.justeval2(presetsstr,Globals)
+		local presetstable=utils.justeval_errerr(presetsstr,Globals)
 		for key, value in pairs(presetstable) do
 			presets[key]=value
 		end
@@ -192,7 +192,7 @@ end
 for id, ud in pairs(UnitDefs) do
 	if ud.customParams and ud.customParams.drone_defs_carrier_def then
 		local drones=ud.customParams.drone_defs_carrier_def
-		carrierDefs[id]=Spring.Utilities.MergeTable(carrierDefs[id] or {},utils.justeval2(drones,Globals))
+		carrierDefs[id]=Spring.Utilities.MergeTable(carrierDefs[id] or {},utils.justeval_errerr(drones,Globals))
 		Spring.Echo("Loaded carrier " .. ud.name)
 	end
 end
@@ -213,7 +213,7 @@ for id, ud in pairs(UnitDefs) do
 		end
 		if ud.customParams.drone_defs_drone_spawn_pieces then
 			carrierDefs[id] = carrierDefs[id] or {}
-			carrierDefs[id].spawnPieces=utils.justeval2(ud.customParams.drone_defs_drone_spawn_pieces)
+			carrierDefs[id].spawnPieces=utils.justeval_errerr(ud.customParams.drone_defs_drone_spawn_pieces)
 		end
 	end
 end

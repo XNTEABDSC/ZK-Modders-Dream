@@ -2159,7 +2159,7 @@ for _, ud in pairs(UnitDefs) do
 			end
 		end
 		if udcp.tactical_ai_defs_belongs_to then
-			for _, value in pairs(utils.justeval2(udcp.tactical_ai_defs_belongs_to)) do
+			for _, value in pairs(utils.justeval_errerr(udcp.tactical_ai_defs_belongs_to)) do
 				local l=AllArrays[value]
 				l[#l+1] = ud.name
 			end

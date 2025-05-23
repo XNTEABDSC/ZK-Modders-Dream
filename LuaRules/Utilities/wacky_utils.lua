@@ -10,6 +10,12 @@ if not Spring.Utilities.wacky_utils then
 end
 VFS.Include("LuaRules/Utilities/tablefunctions.lua")
 
+local wacky_utils=Spring.Utilities.wacky_utils
+wacky_utils.None=function ()
+    return nil
+end
+Spring.Utilities.wacky_utils=wacky_utils
+
 local luaFiles=VFS.DirList("LuaRules/Utilities/wacky_utils", "*.lua") or {}
 for i = 1, #luaFiles do
     VFS.Include(luaFiles[i])
