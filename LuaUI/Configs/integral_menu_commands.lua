@@ -51,10 +51,12 @@ for udid, ud in pairs(UnitDefs) do
 			--AddBuildQueue(ud.name)
 		end]==]
 		if udcp.integral_menu_be_in_tab then
-			local t=utils.justeval_errerr(udcp.integral_menu_be_in_tab)
-			local tab=t.tab
-			local pos=t.pos
-			tabs[tab][ud.name]=pos
+			local t=utils.justeval_errnil(udcp.integral_menu_be_in_tab)
+			if t then
+				local tab=t.tab
+				local pos=t.pos
+				tabs[tab][ud.name]=pos
+			end
 		end
 	end
 end

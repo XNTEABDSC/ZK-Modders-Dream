@@ -72,29 +72,55 @@ if not Spring.Utilities.wacky_utils.justeval_errnil then
 		end
     end
     wacky_utils.justeval_errerr=justeval_errerr
-
-    local function justeval_errnil(str,_gextra,_glevel)
-        local postfunc, err = loadstring("return " .. str)
-		if postfunc then
+    local function getenv_merge(_gextra,_glevel)
+        _glevel=_glevel or 1
+        local _gr=getfenv(_glevel)
+        if _gextra then 
+            _gr=mt_union(_gextra,_gr)
+        end
+        return _gr
+    end
+    wacky_utils.getenv_merge=getenv_merge
+    local function justeval_errnil(str,env)
+        local func, err = loadstring("return " .. str)
+		if func then
             
-            _glevel=_glevel or 1
-            local _gr=getfenv(_glevel)
-            if _gextra then
-                setfenv(postfunc,mt_union(_gextra,_gr))
-            else
-                setfenv(postfunc,_gr)
+            if env then
+                setfenv(func,env)
             end
 
-            local suc,res=pcall(postfunc)
-			return suc and res or nil
+            local suc,res=pcall(func)
+            if suc then
+                return res
+            else
+                Spring.Echo("Failed to call string " .. tostring(str) .. "\nwith error: " .. res)
+                return nil
+            end
 		else
+            Spring.Echo("Failed to loadstring " .. tostring(str) .. "\nwith error: " .. err)
             return nil
 		end
     end
     wacky_utils.justeval_errnil=justeval_errnil
 
-    local function justeval(str,env)
+    local function justloadstr(str,env)
+        local postfunc, err = loadstring("return " .. str)
+		if postfunc then
+            if env then
+                setfenv(postfunc,env)
+            end
+
+            local suc,res=pcall(postfunc)
+            if suc then
+                return true,res
+            else
+
+            end
+		else
+            return nil
+		end
         
     end
+    wacky_utils.justloadstr=justloadstr
     Spring.Utilities.wacky_utils=wacky_utils
 end
