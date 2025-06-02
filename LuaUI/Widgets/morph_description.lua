@@ -15,7 +15,6 @@ local morphDefs
 local function onLangChanged(locale)
     locale=locale or "en"
     
-    Spring.Echo("Debug: onLangChanged locale " .. locale)
     local unit_translations=WG.translations.units.i18n
     local t={}
     local tlocale={}
@@ -23,12 +22,14 @@ local function onLangChanged(locale)
     for udid,morphData in pairs(morphDefs) do
         local udName=UnitDefs[udid].name
         local descstr=WG.Translate("units",udName .. ".description") or UnitDefs[udid].description
+        --[=[
         for _,tarmorphData in pairs(morphData) do
             local tarUdid=tarmorphData.into
             local tarudHumanname=Spring.Utilities.GetHumanName(UnitDefs[tarUdid])
             descstr=descstr .. ". Can morph to " .. tarudHumanname
         end
-        Spring.Echo("Debug: " .. descstr)
+        ]=]
+        descstr=descstr .. ". Can morph"
         tlocale[udName]={}
         tlocale[udName].description=descstr
     end
