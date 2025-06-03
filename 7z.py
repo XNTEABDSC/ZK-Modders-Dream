@@ -62,7 +62,7 @@ for dependI in modinfo.depend:
         dependStr=re.sub(pattern=repFrom,repl=repInto,string=dependStr)
     modinfo.depend[dependI]=dependStr
 
-open("_modinfo.lua","w").write("return " + "\n".join(valueToLuaStrings(modinfo)) )
+open("modinfo_.lua","w").write("return " + "\n".join(valueToLuaStrings(modinfo)) )
 
 def listToDict(list,v=True):
     dc={}
@@ -71,7 +71,7 @@ def listToDict(list,v=True):
     return dc
 
 ignoreFileNames=listToDict({
-    "modinfo.lua","_modinfo.lua","settings.json","zip.bat","zip.py","LICENSE","README.md","7z.py","7z.bat",".gitignore"
+    "modinfo.lua","modinfo_.lua","settings.json","zip.bat","zip.py","LICENSE","README.md","7z.py","7z.bat",".gitignore"
 })
 ignoreFileEnds={".blend",".blend1",".txt",".py",".code-workspace",".bat"}
 
@@ -79,7 +79,7 @@ GameDirPath=os.path.split(thisAbsPath)[0]
 outputfilename=thisModFileName+"_"+thisModVersion+".sd7"
 
 zip=py7zr.SevenZipFile(os.path.join(GameDirPath,outputfilename),"w")
-zip.write("_modinfo.lua","modinfo.lua")
+zip.write("modinfo_.lua","modinfo.lua")
 for abspath,dirname,filenames in os.walk(thisAbsPath):
     path=abspath.replace(thisAbsPath,"")
     # print(path)
