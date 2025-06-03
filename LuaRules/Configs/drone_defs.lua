@@ -218,9 +218,9 @@ for id, ud in pairs(UnitDefs) do
 	end
 end
 
-for name, data in pairs(carrierDefNames) do
-	if UnitDefNames[name] then
-		local ud=UnitDefNames[name]
+for udid, data in pairs(carrierDefs) do
+	local ud=UnitDefs[udid]
+	if ud then
 		if ud.customParams.def_scale then
 			local scale=tonumber(ud.customParams.def_scale)
 			for idrone=1,#data do
