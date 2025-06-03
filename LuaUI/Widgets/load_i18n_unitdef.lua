@@ -34,7 +34,6 @@ for udid,ud in pairs(UnitDefs) do
         local udTranslationModify=wacky_utils.justeval_errnil(udTranslationModifyStr)
         if udTranslationModify then
             udsTranslationModify[udName]=udTranslationModify
-            Spring.Echo("Debug: Setting unit " .. udName .. "'s udTranslationModify")
         else
             Spring.Log(widget:GetInfo().name,LOG.WARNING, "Failed to load translation of unit " .. udName)
         end
@@ -46,7 +45,6 @@ local table_repalce=Spring.Utilities.wacky_utils.table_replace
 
 local function onLangChanged(locale)
     locale=locale or 'en'
-    Spring.Echo("Debug: onLangChanged " .. locale)
     local unit_translations=WG.translations.units.i18n
     local t={}
     local tlocale={}
@@ -61,7 +59,6 @@ local function onLangChanged(locale)
         
     end
     for toUnitName, translations in pairs(udsTranslationModify) do
-        Spring.Echo("Debug: using translations for unit " .. toUnitName)
         local translationLocale=translations[locale]
         if translationLocale then
             local a=tlocale[toUnitName] or {}
@@ -72,7 +69,6 @@ local function onLangChanged(locale)
             tlocale[toUnitName]=a
         else
             
-            Spring.Echo("Debug: no locale" .. locale)
         end
     end
     unit_translations.load(t)
